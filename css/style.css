@@ -106,7 +106,7 @@ body {
 
 /* ヒーローセクション */
 .hero {
-    background: url('../images/hero-bg.png') center center / cover no-repeat;
+    background: url('../images/hero-bg.png') center 60% / cover no-repeat;
     color: white;
     padding: 120px 0 80px;
     text-align: center;
@@ -120,7 +120,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.5) 0%, rgba(118, 75, 162, 0.5) 100%);
+    background: radial-gradient(ellipse at center 40%, transparent 0%, transparent 20%, rgba(102, 126, 234, 0.7) 60%, rgba(118, 75, 162, 0.85) 100%);
     z-index: 1;
 }
 
