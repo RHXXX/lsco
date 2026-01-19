@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理画面 - LSCO</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- ログイン画面 -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1><i class="fas fa-lock"></i> LSCO 管理画面</h1>
+                <p>社内専用ページです</p>
+            </div>
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="admin-password">パスワード</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="admin-password" placeholder="パスワードを入力" required>
+                        <button type="button" class="toggle-password" id="toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="login-error" class="login-error" style="display: none;">
+                    パスワードが正しくありません
+                </div>
+                <button type="submit" class="login-button">
+                    <i class="fas fa-sign-in-alt"></i> ログイン
+                </button>
+            </form>
+            <div class="login-footer">
+                <a href="index.html"><i class="fas fa-arrow-left"></i> ホームページに戻る</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理画面メイン -->
+    <div id="admin-panel" class="admin-panel" style="display: none;">
+        <!-- サイドバー -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-cog"></i> LSCO Admin</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-section="dashboard">
+                        <a href="#"><i class="fas fa-home"></i> ダッシュボード</a>
+                    </li>
+                    <li class="nav-item" data-section="templates">
+                        <a href="#"><i class="fas fa-file-alt"></i> テンプレート管理</a>
+                    </li>
+                    <li class="nav-item" data-section="settings">
+                        <a href="#"><i class="fas fa-cog"></i> 設定</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logout-button" class="logout-button">
+                    <i class="fas fa-sign-out-alt"></i> ログアウト
+                </button>
+                <a href="index.html" class="back-to-site">
+                    <i class="fas fa-external-link-alt"></i> サイトを表示
+                </a>
+            </div>
+        </aside>
+
+        <!-- メインコンテンツ -->
+        <main class="admin-main">
+            <!-- ヘッダー -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="page-title">ダッシュボード</h1>
+                </div>
+                <div class="header-right">
+                    <span class="admin-user"><i class="fas fa-user-shield"></i> 管理者</span>
+                </div>
+            </header>
+
+            <!-- コンテンツエリア -->
+            <div class="admin-content">
+                <!-- ダッシュボード -->
+                <section id="dashboard-section" class="content-section active">
+                    <div class="dashboard-cards">
+                        <div class="dashboard-card">
+                            <div class="card-icon"><i class="fas fa-file-alt"></i></div>
+                            <div class="card-info">
+                                <h3 id="template-count">0</h3>
+                                <p>登録テンプレート数</p>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="card-icon"><i class="fas fa-folder"></i></div>
+                            <div class="card-info">
+                                <h3 id="category-count">0</h3>
+                                <p>カテゴリー数</p>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="card-icon"><i class="fas fa-clock"></i></div>
+                            <div class="card-info">
+                                <h3 id="last-update">-</h3>
+                                <p>最終更新</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <h2><i class="fas fa-bolt"></i> クイックアクション</h2>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="showSection('templates'); openAddTemplateModal();">
+                                <i class="fas fa-plus"></i> 新規テンプレート作成
+                            </button>
+                            <button class="action-btn" onclick="showSection('templates');">
+                                <i class="fas fa-list"></i> テンプレート一覧
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="recent-templates">
+                        <h2><i class="fas fa-history"></i> 最近のテンプレート</h2>
+                        <div id="recent-template-list" class="template-list">
+                            <!-- 動的に生成 -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- テンプレート管理 -->
+                <section id="templates-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-file-alt"></i> テンプレート管理</h2>
+                        <button id="add-template-btn" class="primary-btn">
+                            <i class="fas fa-plus"></i> 新規テンプレート
+                        </button>
+                    </div>
+
+                    <!-- 検索・フィルター -->
+                    <div class="template-filters">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="template-search" placeholder="テンプレートを検索...">
+                        </div>
+                        <select id="category-filter">
+                            <option value="">すべてのカテゴリー</option>
+                        </select>
+                    </div>
+
+                    <!-- テンプレート一覧 -->
+                    <div id="template-list" class="template-list">
+                        <!-- 動的に生成 -->
+                    </div>
+                </section>
+
+                <!-- 設定 -->
+                <section id="settings-section" class="content-section">
+                    <h2><i class="fas fa-cog"></i> 設定</h2>
+
+                    <div class="settings-group">
+                        <h3>パスワード変更</h3>
+                        <form id="change-password-form">
+                            <div class="form-group">
+                                <label for="current-password">現在のパスワード</label>
+                                <input type="password" id="current-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new-password">新しいパスワード</label>
+                                <input type="password" id="new-password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm-password">新しいパスワード（確認）</label>
+                                <input type="password" id="confirm-password" required>
+                            </div>
+                            <button type="submit" class="primary-btn">パスワードを変更</button>
+                        </form>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>カテゴリー管理</h3>
+                        <div class="category-manager">
+                            <div class="add-category">
+                                <input type="text" id="new-category" placeholder="新しいカテゴリー名">
+                                <button id="add-category-btn" class="primary-btn">追加</button>
+                            </div>
+                            <ul id="category-list" class="category-list">
+                                <!-- 動的に生成 -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>データ管理</h3>
+                        <div class="data-actions">
+                            <button id="export-data-btn" class="secondary-btn">
+                                <i class="fas fa-download"></i> データをエクスポート
+                            </button>
+                            <button id="import-data-btn" class="secondary-btn">
+                                <i class="fas fa-upload"></i> データをインポート
+                            </button>
+                            <input type="file" id="import-file" accept=".json" style="display: none;">
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- テンプレート追加/編集モーダル -->
+    <div id="template-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title"><i class="fas fa-file-alt"></i> 新規テンプレート</h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <form id="template-form">
+                <input type="hidden" id="template-id">
+                <div class="form-group">
+                    <label for="template-title">タイトル <span class="required">*</span></label>
+                    <input type="text" id="template-title" required placeholder="例: お見積りの件について">
+                </div>
+                <div class="form-group">
+                    <label for="template-category">カテゴリー</label>
+                    <select id="template-category">
+                        <option value="">カテゴリーなし</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="template-content">テンプレート内容 <span class="required">*</span></label>
+                    <textarea id="template-content" rows="10" required placeholder="テンプレートの文章を入力してください..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="template-tags">タグ（カンマ区切り）</label>
+                    <input type="text" id="template-tags" placeholder="例: 見積り, 回答, 営業">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-btn" onclick="closeModal()">キャンセル</button>
+                    <button type="submit" class="primary-btn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- テンプレート使用モーダル（コピー用） -->
+    <div id="use-template-modal" class="modal">
+        <div class="modal-content use-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-copy"></i> テンプレートを使用</h2>
+                <button class="modal-close" onclick="closeUseModal()">&times;</button>
+            </div>
+            <div class="template-preview">
+                <h3 id="preview-title"></h3>
+                <div class="preview-content-wrapper">
+                    <textarea id="preview-content" readonly></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="secondary-btn" onclick="closeUseModal()">閉じる</button>
+                <button type="button" class="primary-btn" id="copy-template-btn">
+                    <i class="fas fa-copy"></i> コピーする
+                </button>
+            </div>
+            <div id="copy-success" class="copy-success" style="display: none;">
+                <i class="fas fa-check"></i> コピーしました！
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知エリア -->
+    <div id="notification" class="notification"></div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
