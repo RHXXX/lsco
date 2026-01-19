@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSCO - 株式会社LSCO</title>
+    <meta name="description" content="LSCOは、お客様のビジネスを成功に導くソリューションを提供します">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">
+                    <a href="#" aria-label="LSCOホームへ">LSCO</a>
+                </h1>
+                <nav class="nav" id="nav">
+                    <ul class="nav-list">
+                        <li class="nav-item"><a href="#home" class="nav-link">ホーム</a></li>
+                        <li class="nav-item"><a href="#about" class="nav-link">会社概要</a></li>
+                        <li class="nav-item"><a href="#services" class="nav-link">サービス</a></li>
+                        <li class="nav-item"><a href="#contact" class="nav-link">お問い合わせ</a></li>
+                    </ul>
+                </nav>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="メニューを開く">
+                    <span class="hamburger"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main>
+        <!-- ヒーローセクション -->
+        <section id="home" class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h2 class="hero-title">LSCOで、未来を創る</h2>
+                    <p class="hero-description">私たちは、お客様のビジネスを成功に導く革新的なソリューションを提供します。</p>
+                    <a href="#contact" class="cta-button">お問い合わせはこちら</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 会社概要セクション -->
+        <section id="about" class="section about">
+            <div class="container">
+                <h2 class="section-title">会社概要</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3>私たちについて</h3>
+                        <p>LSCOは、最新技術と豊富な経験を活かし、お客様のビジネス課題を解決するソリューションを提供しています。</p>
+                        <p>お客様の成功が私たちの喜びであり、常に最適なサービスを追求しています。</p>
+                    </div>
+                    <div class="about-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">取引先企業</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">15年</span>
+                            <span class="stat-label">事業歴</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">98%</span>
+                            <span class="stat-label">顧客満足度</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- サービスセクション -->
+        <section id="services" class="section services">
+            <div class="container">
+                <h2 class="section-title">サービス</h2>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3>コンサルティング</h3>
+                        <p>お客様のビジネスに最適な戦略をご提案します。</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3>システム開発</h3>
+                        <p>高品質なシステムを開発・提供します。</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>データ分析</h3>
+                        <p>データから価値を見出し、ビジネスに活用します。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- お問い合わせセクション -->
+        <section id="contact" class="section contact">
+            <div class="container">
+                <h2 class="section-title">お問い合わせ</h2>
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <h3>連絡先情報</h3>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>〒100-0001 東京都千代田区千代田1-1-1</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <span>03-1234-5678</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>info@lsco.jp</span>
+                        </div>
+                    </div>
+                    
+                    <form class="contact-form" id="contact-form">
+                        <div class="form-group">
+                            <label for="name">お名前 <span class="required">*</span></label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="company">会社名</label>
+                            <input type="text" id="company" name="company">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">メールアドレス <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">電話番号</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subject">件名 <span class="required">*</span></label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">お問い合わせ内容 <span class="required">*</span></label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="submit-button">送信する</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>LSCO</h3>
+                    <p>お客様のビジネス成功を支援します</p>
+                </div>
+                <div class="footer-section">
+                    <h4>クイックリンク</h4>
+                    <ul>
+                        <li><a href="#home">ホーム</a></li>
+                        <li><a href="#about">会社概要</a></li>
+                        <li><a href="#services">サービス</a></li>
+                        <li><a href="#contact">お問い合わせ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>連絡先</h4>
+                    <p>03-1234-5678</p>
+                    <p>info@lsco.jp</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 LSCO. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
