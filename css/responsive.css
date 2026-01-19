@@ -362,18 +362,39 @@
         background: #2d3748;
     }
 
-    /* フォームラベルの色 */
+    /* フォームラベルの色 - 白色で見やすく */
     .form-group label {
-        color: #e2e8f0;
+        color: #ffffff;
     }
 
-    /* 連絡先情報の色 */
+    /* 連絡先情報の色 - 白色で見やすく */
     .contact-info h3 {
-        color: #e2e8f0;
+        color: #ffffff;
     }
 
     .info-item span {
-        color: #e2e8f0;
+        color: #ffffff;
+    }
+
+    /* 会社概要セクションのテキスト */
+    .about-text h3 {
+        color: #ffffff;
+    }
+
+    .about-text p {
+        color: #ffffff;
+    }
+
+    .stat-item {
+        background: #1a202c;
+    }
+
+    .stat-number {
+        color: #63b3ed;
+    }
+
+    .stat-label {
+        color: #ffffff;
     }
 
     .form-group input,
