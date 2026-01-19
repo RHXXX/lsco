@@ -108,7 +108,7 @@ body {
 .hero {
     background: url('../images/hero-bg.png') center 60% / cover no-repeat;
     color: white;
-    padding: 120px 0 80px;
+    padding: 100px 0 180px;
     text-align: center;
     position: relative;
 }
@@ -132,7 +132,7 @@ body {
 .hero-content {
     max-width: 800px;
     margin: 0 auto;
-    padding-top: 80px;
+    padding-top: 0;
 }
 
 .hero-title {
