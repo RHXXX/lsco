@@ -361,7 +361,21 @@
     .contact-form {
         background: #2d3748;
     }
-    
+
+    /* フォームラベルの色 */
+    .form-group label {
+        color: #e2e8f0;
+    }
+
+    /* 連絡先情報の色 */
+    .contact-info h3 {
+        color: #e2e8f0;
+    }
+
+    .info-item span {
+        color: #e2e8f0;
+    }
+
     .form-group input,
     .form-group textarea {
         background: #1a202c;
