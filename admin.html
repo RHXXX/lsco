@@ -126,7 +126,12 @@
                     </div>
 
                     <div class="recent-templates">
-                        <h2><i class="fas fa-history"></i> 最近のテンプレート</h2>
+                        <div class="recent-templates-header">
+                            <h2><i class="fas fa-history"></i> テンプレート一覧</h2>
+                            <select id="dashboard-category-filter">
+                                <option value="">すべてのカテゴリー</option>
+                            </select>
+                        </div>
                         <div id="recent-template-list" class="template-list">
                             <!-- 動的に生成 -->
                         </div>
@@ -239,6 +244,10 @@
                     <label for="template-tags">タグ（カンマ区切り）</label>
                     <input type="text" id="template-tags" placeholder="例: 見積り, 回答, 営業">
                 </div>
+                <div class="form-group">
+                    <label for="template-manager">管理者</label>
+                    <input type="text" id="template-manager" placeholder="例: 田中太郎">
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="secondary-btn" onclick="closeModal()">キャンセル</button>
                     <button type="submit" class="primary-btn">保存</button>
@@ -255,16 +264,31 @@
                 <button class="modal-close" onclick="closeUseModal()">&times;</button>
             </div>
             <div class="template-preview">
-                <h3 id="preview-title"></h3>
-                <div class="preview-content-wrapper">
-                    <textarea id="preview-content" readonly></textarea>
+                <div class="preview-section">
+                    <div class="preview-section-header">
+                        <label>タイトル</label>
+                        <button type="button" class="copy-btn" id="copy-title-btn">
+                            <i class="fas fa-copy"></i> タイトルをコピー
+                        </button>
+                    </div>
+                    <div class="preview-title-wrapper">
+                        <input type="text" id="preview-title" readonly>
+                    </div>
+                </div>
+                <div class="preview-section">
+                    <div class="preview-section-header">
+                        <label>本文</label>
+                        <button type="button" class="copy-btn" id="copy-content-btn">
+                            <i class="fas fa-copy"></i> 本文をコピー
+                        </button>
+                    </div>
+                    <div class="preview-content-wrapper">
+                        <textarea id="preview-content" readonly></textarea>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="secondary-btn" onclick="closeUseModal()">閉じる</button>
-                <button type="button" class="primary-btn" id="copy-template-btn">
-                    <i class="fas fa-copy"></i> コピーする
-                </button>
             </div>
             <div id="copy-success" class="copy-success" style="display: none;">
                 <i class="fas fa-check"></i> コピーしました！

@@ -106,11 +106,15 @@ body {
 
 /* ヒーローセクション */
 .hero {
-    background: url('../images/hero-bg.png') center 60% / cover no-repeat;
+    background: url('../images/hero-bg.png') center 30% / cover no-repeat;
     color: white;
-    padding: 100px 0 180px;
+    padding: 80px 0 60px;
     text-align: center;
     position: relative;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
 .hero::before {
@@ -120,13 +124,21 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(ellipse at center 40%, transparent 0%, transparent 20%, rgba(102, 126, 234, 0.7) 60%, rgba(118, 75, 162, 0.85) 100%);
+    background: linear-gradient(to bottom,
+        rgba(102, 126, 234, 0.3) 0%,
+        transparent 30%,
+        transparent 60%,
+        rgba(102, 126, 234, 0.6) 80%,
+        rgba(118, 75, 162, 0.85) 100%);
     z-index: 1;
 }
 
 .hero .container {
     position: relative;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .hero-content {
@@ -135,17 +147,30 @@ body {
     padding-top: 0;
 }
 
+.hero-top {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-top: 20px;
+}
+
+.hero-bottom {
+    margin-top: auto;
+    padding-bottom: 40px;
+}
+
 .hero-title {
-    font-size: 3.5rem;
+    font-size: 3rem;
     font-weight: 700;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     line-height: 1.2;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
 .hero-description {
-    font-size: 1.25rem;
-    margin-bottom: 2.5rem;
-    opacity: 0.9;
+    font-size: 1.15rem;
+    margin-bottom: 0;
+    opacity: 0.95;
+    text-shadow: 0 1px 5px rgba(0,0,0,0.3);
 }
 
 .cta-button {

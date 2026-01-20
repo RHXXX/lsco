@@ -179,7 +179,11 @@ function initializeEventListeners() {
     document.getElementById('import-file').addEventListener('change', importData);
 
     // コピーボタン
-    document.getElementById('copy-template-btn').addEventListener('click', copyTemplateContent);
+    document.getElementById('copy-title-btn').addEventListener('click', copyTemplateTitle);
+    document.getElementById('copy-content-btn').addEventListener('click', copyTemplateContent);
+
+    // ダッシュボードのカテゴリーフィルター
+    document.getElementById('dashboard-category-filter').addEventListener('change', filterDashboardTemplates);
 
     // モーダル外クリックで閉じる
     document.getElementById('template-modal').addEventListener('click', function(e) {
@@ -340,8 +344,39 @@ function loadDashboard() {
         document.getElementById('last-update').textContent = '-';
     }
 
-    // 最近のテンプレートを表示
-    renderRecentTemplates(templates.slice(0, 3));
+    // ダッシュボードのカテゴリーフィルターを更新
+    loadDashboardCategoryFilter();
+
+    // テンプレートを表示
+    renderRecentTemplates(templates);
+}
+
+function loadDashboardCategoryFilter() {
+    const categories = getCategories();
+    const select = document.getElementById('dashboard-category-filter');
+
+    // 既存のオプションをクリア（最初のオプションは残す）
+    while (select.options.length > 1) {
+        select.remove(1);
+    }
+
+    categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        select.appendChild(option);
+    });
+}
+
+function filterDashboardTemplates() {
+    const categoryFilter = document.getElementById('dashboard-category-filter').value;
+    let templates = getTemplates();
+
+    if (categoryFilter) {
+        templates = templates.filter(t => t.category === categoryFilter);
+    }
+
+    renderRecentTemplates(templates);
 }
 
 function renderRecentTemplates(templates) {
@@ -363,6 +398,7 @@ function renderRecentTemplates(templates) {
                 <div class="template-meta">
                     <span><i class="fas fa-folder"></i> ${escapeHtml(template.category || 'なし')}</span>
                     <span><i class="fas fa-clock"></i> ${formatDate(new Date(template.updatedAt))}</span>
+                    ${template.manager ? `<span><i class="fas fa-user"></i> ${escapeHtml(template.manager)}</span>` : ''}
                 </div>
             </div>
             <div class="template-actions">
@@ -414,6 +450,7 @@ function renderTemplates(templates) {
                 <div class="template-meta">
                     <span><i class="fas fa-folder"></i> ${escapeHtml(template.category || 'カテゴリーなし')}</span>
                     <span><i class="fas fa-clock"></i> ${formatDate(new Date(template.updatedAt))}</span>
+                    ${template.manager ? `<span><i class="fas fa-user"></i> ${escapeHtml(template.manager)}</span>` : ''}
                 </div>
                 <p class="template-preview-text">${escapeHtml(template.content.substring(0, 100))}...</p>
                 ${template.tags && template.tags.length > 0 ? `
@@ -482,6 +519,7 @@ function openEditTemplateModal(id) {
     document.getElementById('template-title').value = template.title;
     document.getElementById('template-content').value = template.content;
     document.getElementById('template-tags').value = template.tags ? template.tags.join(', ') : '';
+    document.getElementById('template-manager').value = template.manager || '';
 
     loadModalCategories();
     document.getElementById('template-category').value = template.category || '';
@@ -502,6 +540,7 @@ function handleTemplateSubmit(e) {
     const content = document.getElementById('template-content').value.trim();
     const tagsInput = document.getElementById('template-tags').value.trim();
     const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
+    const manager = document.getElementById('template-manager').value.trim();
 
     if (!title || !content) {
         showNotification('タイトルと内容は必須です', 'error');
@@ -520,6 +559,7 @@ function handleTemplateSubmit(e) {
                 category,
                 content,
                 tags,
+                manager,
                 updatedAt: new Date().toISOString()
             };
             showNotification('テンプレートを更新しました', 'success');
@@ -532,6 +572,7 @@ function handleTemplateSubmit(e) {
             category,
             content,
             tags,
+            manager,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
@@ -572,7 +613,7 @@ function openUseModal(id) {
         return;
     }
 
-    document.getElementById('preview-title').textContent = template.title;
+    document.getElementById('preview-title').value = template.title;
     document.getElementById('preview-content').value = template.content;
     document.getElementById('copy-success').style.display = 'none';
     document.getElementById('use-template-modal').classList.add('active');
@@ -582,26 +623,44 @@ function closeUseModal() {
     document.getElementById('use-template-modal').classList.remove('active');
 }
 
+function copyTemplateTitle() {
+    const title = document.getElementById('preview-title').value;
+
+    navigator.clipboard.writeText(title).then(() => {
+        showCopySuccess('タイトルをコピーしました');
+    }).catch(err => {
+        // フォールバック
+        const input = document.getElementById('preview-title');
+        input.select();
+        document.execCommand('copy');
+        showCopySuccess('タイトルをコピーしました');
+    });
+}
+
 function copyTemplateContent() {
     const content = document.getElementById('preview-content').value;
 
     navigator.clipboard.writeText(content).then(() => {
-        document.getElementById('copy-success').style.display = 'block';
-        showNotification('クリップボードにコピーしました', 'success');
-
-        // 2秒後にコピー成功メッセージを非表示
-        setTimeout(() => {
-            document.getElementById('copy-success').style.display = 'none';
-        }, 2000);
+        showCopySuccess('本文をコピーしました');
     }).catch(err => {
         // フォールバック：テキストエリアを選択
         const textarea = document.getElementById('preview-content');
         textarea.select();
         document.execCommand('copy');
-
-        document.getElementById('copy-success').style.display = 'block';
-        showNotification('クリップボードにコピーしました', 'success');
+        showCopySuccess('本文をコピーしました');
     });
+}
+
+function showCopySuccess(message) {
+    const successDiv = document.getElementById('copy-success');
+    successDiv.innerHTML = `<i class="fas fa-check"></i> ${message}`;
+    successDiv.style.display = 'block';
+    showNotification(message, 'success');
+
+    // 2秒後にコピー成功メッセージを非表示
+    setTimeout(() => {
+        successDiv.style.display = 'none';
+    }, 2000);
 }
 
 // ============================================
