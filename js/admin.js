@@ -143,6 +143,21 @@ function initializeEventListeners() {
     document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
+            // サブメニュー付きの場合はトグル
+            if (this.classList.contains('has-submenu')) {
+                this.classList.toggle('open');
+            } else {
+                const section = this.getAttribute('data-section');
+                showSection(section);
+            }
+        });
+    });
+
+    // サブメニューのナビゲーション
+    document.querySelectorAll('.submenu-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             const section = this.getAttribute('data-section');
             showSection(section);
         });
@@ -297,6 +312,19 @@ function showSection(sectionName) {
         }
     });
 
+    // サブメニューのアクティブ状態を更新
+    document.querySelectorAll('.submenu-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('data-section') === sectionName) {
+            item.classList.add('active');
+            // 親メニューを開く
+            const parentMenu = item.closest('.has-submenu');
+            if (parentMenu) {
+                parentMenu.classList.add('open');
+            }
+        }
+    });
+
     // セクションの表示を切り替え
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
@@ -307,13 +335,22 @@ function showSection(sectionName) {
     const titles = {
         dashboard: 'ダッシュボード',
         templates: 'テンプレート管理',
-        calculator: '集計',
+        'calculator-dashboard': '集計ダッシュボード',
+        'calculator-1': '集計 - 担当者1',
+        'calculator-2': '集計 - 担当者2',
+        'calculator-3': '集計 - 担当者3',
+        calendar: 'カレンダー',
         settings: '設定'
     };
 
     // 集計ページの初期化
-    if (sectionName === 'calculator') {
-        initCalculator();
+    if (sectionName.startsWith('calculator-')) {
+        const calcId = sectionName.split('-')[1];
+        if (calcId === 'dashboard') {
+            updateCalcDashboard();
+        } else {
+            initCalculatorPage(parseInt(calcId));
+        }
     }
     document.getElementById('page-title').textContent = titles[sectionName] || sectionName;
 
@@ -895,138 +932,215 @@ function showNotification(message, type = 'info') {
 }
 
 // ============================================
-// 集計機能
+// 集計機能（3人分対応版）
 // ============================================
 
-function initCalculator() {
+function initCalculatorPage(calcId) {
+    const container = document.querySelector(`[data-calc-id="${calcId}"]`);
+    if (!container) return;
+
     // 日付を今日に設定
     const today = new Date().toISOString().split('T')[0];
-    const dateInput = document.getElementById('calc-date');
-    if (dateInput) {
+    const dateInput = container.querySelector('.calc-date');
+    if (dateInput && !dateInput.value) {
         dateInput.value = today;
     }
 
-    // 各入力フィールドにイベントリスナーを追加
-    document.querySelectorAll('.calc-quantity, .calc-commission, .calc-other, #calc-expense').forEach(input => {
-        input.addEventListener('input', calculateAll);
-    });
+    // 各入力フィールドにイベントリスナーを追加（重複防止）
+    if (!container.dataset.initialized) {
+        container.querySelectorAll('.calc-b-quantity, .calc-b-other, .calc-b-commission, .calc-expense').forEach(input => {
+            input.addEventListener('input', () => calculateAllForCalc(calcId));
+        });
 
-    // 担当者名と日付の変更時にもプレビュー更新
-    document.getElementById('calc-staff-name').addEventListener('input', updateCalculatorOutput);
-    document.getElementById('calc-date').addEventListener('change', updateCalculatorOutput);
+        // 担当者名と日付の変更時にもプレビュー更新
+        container.querySelector('.calc-staff-name').addEventListener('input', () => updateCalculatorOutputForCalc(calcId));
+        container.querySelector('.calc-date').addEventListener('change', () => updateCalculatorOutputForCalc(calcId));
+
+        container.dataset.initialized = 'true';
+    }
 
     // 初回計算
-    calculateAll();
+    calculateAllForCalc(calcId);
 }
 
-function calculateAll() {
+function calculateAllForCalc(calcId) {
+    const container = document.querySelector(`[data-calc-id="${calcId}"]`);
+    if (!container) return;
+
     let totalQuantity = 0;
-    let grandTotal = 0;
+    let grandTotalA = 0; // 担当者Aの総合計（50%）
 
-    // 各行を計算
-    document.querySelectorAll('.calc-table tbody tr').forEach(row => {
-        const price = parseInt(row.dataset.price) || 0;
-        const quantity = parseInt(row.querySelector('.calc-quantity').value) || 0;
-        const commission = parseInt(row.querySelector('.calc-commission').value) || 0;
+    // 担当者Bのデータから担当者Aを計算
+    container.querySelectorAll('.calc-table-b tbody tr').forEach((rowB, index) => {
+        const price = parseInt(rowB.dataset.price) || 0;
+        const quantityB = parseInt(rowB.querySelector('.calc-b-quantity').value) || 0;
 
-        const subtotal = price * quantity;
-        const rowTotal = subtotal + commission;
+        // 担当者Aの計算（本数は同じ、金額は50%）
+        const subtotalA = Math.floor(price * quantityB * 0.5);
 
-        // セルを更新
-        row.querySelector('.subtotal-cell').textContent = formatCurrency(subtotal);
-        row.querySelector('.total-cell').textContent = formatCurrency(rowTotal);
+        // 担当者Aテーブルに反映
+        const rowsA = container.querySelectorAll('.calc-table-a tbody tr');
+        if (rowsA[index]) {
+            rowsA[index].querySelector('.a-quantity').textContent = quantityB;
+            rowsA[index].querySelector('.a-subtotal').textContent = formatCurrency(subtotalA);
+        }
 
-        totalQuantity += quantity;
-        grandTotal += rowTotal;
+        totalQuantity += quantityB;
+        grandTotalA += subtotalA;
     });
 
     // 経費を取得
-    const expense = parseInt(document.getElementById('calc-expense').value) || 0;
+    const expense = parseInt(container.querySelector('.calc-expense').value) || 0;
 
-    // 合計金額 = 総合計 + 経費
-    const finalTotal = grandTotal + expense;
+    // 合計金額 = 総合計 - 経費（担当者Aの取り分）
+    const finalTotal = grandTotalA - expense;
 
-    // 送り = 総合計 - 合計金額 (つまり -経費 になる)
-    const sendAmount = grandTotal - finalTotal;
+    // 送り = 総合計 - 合計金額
+    const sendAmount = grandTotalA - finalTotal;
 
     // 結果を表示
-    document.getElementById('total-quantity').textContent = totalQuantity + '本';
-    document.getElementById('grand-total').textContent = formatCurrency(grandTotal);
-    document.getElementById('final-total').textContent = formatCurrency(finalTotal);
-    document.getElementById('send-amount').textContent = formatCurrency(sendAmount);
+    container.querySelector('.total-quantity').textContent = totalQuantity + '本';
+    container.querySelector('.grand-total').textContent = formatCurrency(grandTotalA);
+    container.querySelector('.final-total').textContent = formatCurrency(finalTotal);
+    container.querySelector('.send-amount').textContent = formatCurrency(sendAmount);
 
     // 出力プレビューを更新
-    updateCalculatorOutput();
+    updateCalculatorOutputForCalc(calcId);
+
+    // ダッシュボードを更新
+    updateCalcDashboard();
 }
 
-function updateCalculatorOutput() {
-    const staffName = document.getElementById('calc-staff-name').value || '担当者名';
-    const dateInput = document.getElementById('calc-date').value;
-    const date = dateInput ? new Date(dateInput).toLocaleDateString('ja-JP', {year: 'numeric', month: '2-digit', day: '2-digit'}).replace(/\//g, '/') : '日付';
+function updateCalculatorOutputForCalc(calcId) {
+    const container = document.querySelector(`[data-calc-id="${calcId}"]`);
+    if (!container) return;
+
+    const staffName = container.querySelector('.calc-staff-name').value || '担当者名';
+    const dateInput = container.querySelector('.calc-date').value;
+    const date = dateInput ? dateInput : '日付';
 
     let totalQuantity = 0;
-    let details = [];
-    let ssDetails = [];
+    let detailsA = [];
+    let detailsB = [];
+    let grandTotalA = 0;
+    let totalBWithCommission = 0;
 
-    document.querySelectorAll('.calc-table tbody tr').forEach(row => {
-        const price = parseInt(row.dataset.price) || 0;
-        const quantity = parseInt(row.querySelector('.calc-quantity').value) || 0;
-        const other = parseInt(row.querySelector('.calc-other').value) || 0;
-        const commission = parseInt(row.querySelector('.calc-commission').value) || 0;
+    container.querySelectorAll('.calc-table-b tbody tr').forEach(rowB => {
+        const price = parseInt(rowB.dataset.price) || 0;
+        const quantityB = parseInt(rowB.querySelector('.calc-b-quantity').value) || 0;
+        const otherB = parseInt(rowB.querySelector('.calc-b-other').value) || 0;
+        const commissionB = parseInt(rowB.querySelector('.calc-b-commission').value) || 0;
 
-        if (quantity > 0) {
-            const subtotal = price * quantity;
-            details.push(`${price}×${quantity}：${subtotal}`);
-            totalQuantity += quantity;
+        if (quantityB > 0) {
+            // 担当者A: 金額の50%
+            const subtotalA = Math.floor(price * quantityB * 0.5);
+            detailsA.push(`${price}×${quantityB}：${subtotalA}`);
+            grandTotalA += subtotalA;
+            totalQuantity += quantityB;
 
-            // SS部分
-            const rowTotal = subtotal + commission;
-            ssDetails.push(`${price}×${quantity}（${other}）（${subtotal}/${commission}/${rowTotal}）`);
+            // 担当者B: 金額/歩合/合計
+            const pricePartB = Math.floor(price * quantityB * 0.5); // 担当者Bの金額（残り50%から計算）
+            const rowTotalB = pricePartB + commissionB;
+            detailsB.push(`${price}×${quantityB}（${otherB}）（${pricePartB}/${commissionB}/${rowTotalB}）`);
+            totalBWithCommission += rowTotalB;
         }
     });
 
-    const grandTotal = parseInt(document.getElementById('grand-total').textContent.replace(/[¥,]/g, '')) || 0;
-    const expense = parseInt(document.getElementById('calc-expense').value) || 0;
-    const finalTotal = grandTotal + expense;
-    const sendAmount = grandTotal - finalTotal;
+    const expense = parseInt(container.querySelector('.calc-expense').value) || 0;
+    const finalTotal = grandTotalA - expense;
+    const sendAmount = expense;
 
+    // 担当者Aブロック出力
     let output = `―――――――――――\n`;
-    output += `${staffName}\n`;
+    output += `担当者名：${staffName}\n`;
     output += `${date}：${String(totalQuantity).padStart(2, '0')}本\n`;
-    output += `合計：${grandTotal}\n`;
-    output += `詳細\n`;
-    details.forEach(d => output += `${d}\n`);
+    output += `総合計：${grandTotalA}\n`;
+    detailsA.forEach(d => output += `${d}\n`);
     output += `経費：${expense}\n`;
-    output += `合計：${finalTotal}\n`;
-    output += `送り：${Math.abs(sendAmount)}\n`;
+    output += `合計金額：${finalTotal}\n`;
+    output += `送り：${sendAmount}\n`;
     output += `―――――――――――\n`;
-    output += `SS\n`;
-    ssDetails.forEach(d => output += `${d}\n`);
-    output += `（TOTAL/${grandTotal}-${expense}＝${Math.abs(sendAmount)}）\n`;
+
+    // 担当者Bブロック出力
+    output += `送り：${sendAmount}\n\n`;
+    output += `${staffName}\n`;
+    detailsB.forEach(d => output += `${d}\n`);
+    output += `（TOTAL/${totalBWithCommission}-${expense}＝${totalBWithCommission - expense}）\n`;
     output += `―――――――――――`;
 
-    document.getElementById('calc-output').textContent = output;
+    container.querySelector('.calc-output').textContent = output;
 }
 
-function clearCalculator() {
-    // 入力フィールドをクリア
-    document.getElementById('calc-staff-name').value = '';
-    document.getElementById('calc-date').value = new Date().toISOString().split('T')[0];
+function updateCalcDashboard() {
+    // 各担当者の集計データをダッシュボードに反映
+    for (let i = 1; i <= 3; i++) {
+        const container = document.querySelector(`[data-calc-id="${i}"]`);
+        if (container) {
+            const staffName = container.querySelector('.calc-staff-name').value || `担当者${i}`;
+            const quantity = container.querySelector('.total-quantity').textContent || '0本';
+            const total = container.querySelector('.grand-total').textContent || '¥0';
+            const send = container.querySelector('.send-amount').textContent || '¥0';
 
-    document.querySelectorAll('.calc-quantity, .calc-other, .calc-commission').forEach(input => {
+            const dashStaffName = document.getElementById(`dash-staff-name-${i}`);
+            const dashQuantity = document.getElementById(`dash-quantity-${i}`);
+            const dashTotal = document.getElementById(`dash-total-${i}`);
+            const dashSend = document.getElementById(`dash-send-${i}`);
+
+            if (dashStaffName) dashStaffName.textContent = staffName;
+            if (dashQuantity) dashQuantity.textContent = quantity;
+            if (dashTotal) dashTotal.textContent = total;
+            if (dashSend) dashSend.textContent = send;
+        }
+    }
+
+    // 全員の出力を更新
+    updateAllCalcOutput();
+}
+
+function updateAllCalcOutput() {
+    let allOutput = '';
+
+    for (let i = 1; i <= 3; i++) {
+        const container = document.querySelector(`[data-calc-id="${i}"]`);
+        if (container) {
+            const output = container.querySelector('.calc-output');
+            if (output && output.textContent.trim()) {
+                allOutput += output.textContent + '\n\n';
+            }
+        }
+    }
+
+    const allOutputElement = document.getElementById('calc-all-output');
+    if (allOutputElement) {
+        allOutputElement.textContent = allOutput.trim() || '各担当者のデータを入力してください';
+    }
+}
+
+function clearCalculator(calcId) {
+    const container = document.querySelector(`[data-calc-id="${calcId}"]`);
+    if (!container) return;
+
+    // 入力フィールドをクリア
+    container.querySelector('.calc-staff-name').value = '';
+    container.querySelector('.calc-date').value = new Date().toISOString().split('T')[0];
+
+    container.querySelectorAll('.calc-b-quantity, .calc-b-other, .calc-b-commission').forEach(input => {
         input.value = '0';
     });
 
-    document.getElementById('calc-expense').value = '0';
+    container.querySelector('.calc-expense').value = '0';
 
     // 再計算
-    calculateAll();
+    calculateAllForCalc(calcId);
 
     showNotification('入力をクリアしました', 'info');
 }
 
-function copyCalculatorResult() {
-    const output = document.getElementById('calc-output').textContent;
+function copyCalculatorResult(calcId) {
+    const container = document.querySelector(`[data-calc-id="${calcId}"]`);
+    if (!container) return;
+
+    const output = container.querySelector('.calc-output').textContent;
 
     navigator.clipboard.writeText(output).then(() => {
         showNotification('結果をコピーしました', 'success');
@@ -1039,6 +1153,23 @@ function copyCalculatorResult() {
         document.execCommand('copy');
         document.body.removeChild(textarea);
         showNotification('結果をコピーしました', 'success');
+    });
+}
+
+function copyAllCalculatorResults() {
+    const output = document.getElementById('calc-all-output').textContent;
+
+    navigator.clipboard.writeText(output).then(() => {
+        showNotification('全ての結果をコピーしました', 'success');
+    }).catch(err => {
+        // フォールバック
+        const textarea = document.createElement('textarea');
+        textarea.value = output;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showNotification('全ての結果をコピーしました', 'success');
     });
 }
 
@@ -1057,3 +1188,4 @@ window.deleteTemplate = deleteTemplate;
 window.deleteCategory = deleteCategory;
 window.clearCalculator = clearCalculator;
 window.copyCalculatorResult = copyCalculatorResult;
+window.copyAllCalculatorResults = copyAllCalculatorResults;
