@@ -992,11 +992,11 @@ function calculateAllForCalc(calcId) {
     // 経費を取得
     const expense = parseInt(container.querySelector('.calc-expense').value) || 0;
 
-    // 合計金額 = 総合計 - 経費（担当者Aの取り分）
-    const finalTotal = grandTotalA - expense;
+    // 担当者A: 合計金額 = 総合計 + 経費（Aは経費を上乗せで受け取る）
+    const finalTotal = grandTotalA + expense;
 
-    // 送り = 総合計 - 合計金額
-    const sendAmount = grandTotalA - finalTotal;
+    // 担当者B: 送り = 総合計 - 経費（Bが経費を負担するので、Bに行く金額は総合計から経費を引いた額）
+    const sendAmount = grandTotalA - expense;
 
     // 結果を表示
     container.querySelector('.total-quantity').textContent = totalQuantity + '本';
@@ -1047,8 +1047,12 @@ function updateCalculatorOutputForCalc(calcId) {
     });
 
     const expense = parseInt(container.querySelector('.calc-expense').value) || 0;
-    const finalTotal = grandTotalA - expense;
-    const sendAmount = expense;
+
+    // 担当者A: 合計金額 = 総合計 + 経費
+    const finalTotalA = grandTotalA + expense;
+
+    // 担当者B: 送り = 総合計 - 経費（Bが経費を負担するので、Bに行く金額は総合計から経費を引いた額）
+    const sendAmount = grandTotalA - expense;
 
     // 担当者Aブロック出力
     let output = `―――――――――――\n`;
@@ -1057,7 +1061,7 @@ function updateCalculatorOutputForCalc(calcId) {
     output += `総合計：${grandTotalA}\n`;
     detailsA.forEach(d => output += `${d}\n`);
     output += `経費：${expense}\n`;
-    output += `合計金額：${finalTotal}\n`;
+    output += `合計金額：${finalTotalA}\n`;
     output += `送り：${sendAmount}\n`;
     output += `―――――――――――\n`;
 
