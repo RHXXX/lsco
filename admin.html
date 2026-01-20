@@ -55,6 +55,9 @@
                     <li class="nav-item" data-section="templates">
                         <a href="#"><i class="fas fa-file-alt"></i> テンプレート管理</a>
                     </li>
+                    <li class="nav-item" data-section="calculator">
+                        <a href="#"><i class="fas fa-calculator"></i> 集計</a>
+                    </li>
                     <li class="nav-item" data-section="settings">
                         <a href="#"><i class="fas fa-cog"></i> 設定</a>
                     </li>
@@ -161,6 +164,132 @@
                     <!-- テンプレート一覧 -->
                     <div id="template-list" class="template-list">
                         <!-- 動的に生成 -->
+                    </div>
+                </section>
+
+                <!-- 集計 -->
+                <section id="calculator-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-calculator"></i> 集計</h2>
+                        <div class="calc-actions">
+                            <button type="button" class="secondary-btn" onclick="clearCalculator()">
+                                <i class="fas fa-eraser"></i> クリア
+                            </button>
+                            <button type="button" class="primary-btn" onclick="copyCalculatorResult()">
+                                <i class="fas fa-copy"></i> 結果をコピー
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="calculator-container">
+                        <!-- 担当者情報 -->
+                        <div class="calc-section">
+                            <div class="calc-row">
+                                <div class="calc-field">
+                                    <label>担当者名</label>
+                                    <input type="text" id="calc-staff-name" placeholder="例: 田中ようじ">
+                                </div>
+                                <div class="calc-field">
+                                    <label>日付</label>
+                                    <input type="date" id="calc-date">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- メイン集計テーブル -->
+                        <div class="calc-section">
+                            <h3><i class="fas fa-table"></i> 売上明細</h3>
+                            <div class="calc-table-wrapper">
+                                <table class="calc-table">
+                                    <thead>
+                                        <tr>
+                                            <th>金額</th>
+                                            <th>本数</th>
+                                            <th>小計</th>
+                                            <th>別担当</th>
+                                            <th>歩合</th>
+                                            <th>合計</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr data-price="40000">
+                                            <td class="price-cell">¥40,000</td>
+                                            <td><input type="number" class="calc-quantity" min="0" value="0"></td>
+                                            <td class="subtotal-cell">¥0</td>
+                                            <td><input type="number" class="calc-other" min="0" value="0"></td>
+                                            <td><input type="number" class="calc-commission" min="0" value="0"></td>
+                                            <td class="total-cell">¥0</td>
+                                        </tr>
+                                        <tr data-price="30000">
+                                            <td class="price-cell">¥30,000</td>
+                                            <td><input type="number" class="calc-quantity" min="0" value="0"></td>
+                                            <td class="subtotal-cell">¥0</td>
+                                            <td><input type="number" class="calc-other" min="0" value="0"></td>
+                                            <td><input type="number" class="calc-commission" min="0" value="0"></td>
+                                            <td class="total-cell">¥0</td>
+                                        </tr>
+                                        <tr data-price="25000">
+                                            <td class="price-cell">¥25,000</td>
+                                            <td><input type="number" class="calc-quantity" min="0" value="0"></td>
+                                            <td class="subtotal-cell">¥0</td>
+                                            <td><input type="number" class="calc-other" min="0" value="0"></td>
+                                            <td><input type="number" class="calc-commission" min="0" value="0"></td>
+                                            <td class="total-cell">¥0</td>
+                                        </tr>
+                                        <tr data-price="20000">
+                                            <td class="price-cell">¥20,000</td>
+                                            <td><input type="number" class="calc-quantity" min="0" value="0"></td>
+                                            <td class="subtotal-cell">¥0</td>
+                                            <td><input type="number" class="calc-other" min="0" value="0"></td>
+                                            <td><input type="number" class="calc-commission" min="0" value="0"></td>
+                                            <td class="total-cell">¥0</td>
+                                        </tr>
+                                        <tr data-price="15000">
+                                            <td class="price-cell">¥15,000</td>
+                                            <td><input type="number" class="calc-quantity" min="0" value="0"></td>
+                                            <td class="subtotal-cell">¥0</td>
+                                            <td><input type="number" class="calc-other" min="0" value="0"></td>
+                                            <td><input type="number" class="calc-commission" min="0" value="0"></td>
+                                            <td class="total-cell">¥0</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 集計結果 -->
+                        <div class="calc-section calc-results">
+                            <div class="result-row">
+                                <span class="result-label">本数合計</span>
+                                <span class="result-value" id="total-quantity">0本</span>
+                            </div>
+                            <div class="result-row">
+                                <span class="result-label">総合計</span>
+                                <span class="result-value highlight" id="grand-total">¥0</span>
+                            </div>
+                            <div class="result-row expense-row">
+                                <span class="result-label">経費</span>
+                                <span class="result-value">
+                                    <input type="number" id="calc-expense" min="0" value="0" placeholder="0">
+                                </span>
+                            </div>
+                            <div class="result-row final-row">
+                                <span class="result-label">合計金額</span>
+                                <span class="result-value highlight-final" id="final-total">¥0</span>
+                            </div>
+                            <div class="result-row send-row">
+                                <span class="result-label">送り</span>
+                                <span class="result-value highlight-send" id="send-amount">¥0</span>
+                            </div>
+                        </div>
+
+                        <!-- 結果プレビュー -->
+                        <div class="calc-section">
+                            <h3><i class="fas fa-file-alt"></i> 出力プレビュー</h3>
+                            <div class="calc-preview">
+                                <pre id="calc-output"></pre>
+                            </div>
+                        </div>
                     </div>
                 </section>
 

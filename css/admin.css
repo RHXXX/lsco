@@ -1022,6 +1022,206 @@
 }
 
 /* ============================================
+   集計ページ
+   ============================================ */
+.calculator-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.calc-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.calc-section h3 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.calc-section h3 i {
+    color: #667eea;
+    margin-right: 0.5rem;
+}
+
+.calc-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.calc-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.calc-field label {
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.calc-field input {
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.calc-field input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.calc-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* 集計テーブル */
+.calc-table-wrapper {
+    overflow-x: auto;
+}
+
+.calc-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.calc-table th,
+.calc-table td {
+    padding: 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.calc-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.85rem;
+}
+
+.calc-table td {
+    font-size: 0.95rem;
+}
+
+.calc-table .price-cell {
+    font-weight: 600;
+    color: #667eea;
+    text-align: left;
+}
+
+.calc-table .subtotal-cell,
+.calc-table .total-cell {
+    font-weight: 500;
+    color: #333;
+}
+
+.calc-table .total-cell {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.calc-table input {
+    width: 80px;
+    padding: 0.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.calc-table input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* 集計結果 */
+.calc-results {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.result-row:last-child {
+    border-bottom: none;
+}
+
+.result-label {
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.result-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.result-value.highlight {
+    font-size: 1.3rem;
+    color: #fbbf24;
+}
+
+.result-value.highlight-final {
+    font-size: 1.5rem;
+    color: #34d399;
+}
+
+.result-value.highlight-send {
+    font-size: 1.3rem;
+    color: #f472b6;
+}
+
+.expense-row input {
+    width: 120px;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 6px;
+    text-align: right;
+    font-size: 1rem;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+}
+
+.expense-row input:focus {
+    outline: none;
+    background: white;
+}
+
+/* 出力プレビュー */
+.calc-preview {
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+.calc-preview pre {
+    color: #e2e8f0;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+/* ============================================
    レスポンシブ
    ============================================ */
 @media (max-width: 1024px) {

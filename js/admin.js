@@ -307,8 +307,14 @@ function showSection(sectionName) {
     const titles = {
         dashboard: 'ダッシュボード',
         templates: 'テンプレート管理',
+        calculator: '集計',
         settings: '設定'
     };
+
+    // 集計ページの初期化
+    if (sectionName === 'calculator') {
+        initCalculator();
+    }
     document.getElementById('page-title').textContent = titles[sectionName] || sectionName;
 
     // モバイルでサイドバーを閉じる
@@ -888,6 +894,158 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
+// ============================================
+// 集計機能
+// ============================================
+
+function initCalculator() {
+    // 日付を今日に設定
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('calc-date');
+    if (dateInput) {
+        dateInput.value = today;
+    }
+
+    // 各入力フィールドにイベントリスナーを追加
+    document.querySelectorAll('.calc-quantity, .calc-commission, .calc-other, #calc-expense').forEach(input => {
+        input.addEventListener('input', calculateAll);
+    });
+
+    // 担当者名と日付の変更時にもプレビュー更新
+    document.getElementById('calc-staff-name').addEventListener('input', updateCalculatorOutput);
+    document.getElementById('calc-date').addEventListener('change', updateCalculatorOutput);
+
+    // 初回計算
+    calculateAll();
+}
+
+function calculateAll() {
+    let totalQuantity = 0;
+    let grandTotal = 0;
+
+    // 各行を計算
+    document.querySelectorAll('.calc-table tbody tr').forEach(row => {
+        const price = parseInt(row.dataset.price) || 0;
+        const quantity = parseInt(row.querySelector('.calc-quantity').value) || 0;
+        const commission = parseInt(row.querySelector('.calc-commission').value) || 0;
+
+        const subtotal = price * quantity;
+        const rowTotal = subtotal + commission;
+
+        // セルを更新
+        row.querySelector('.subtotal-cell').textContent = formatCurrency(subtotal);
+        row.querySelector('.total-cell').textContent = formatCurrency(rowTotal);
+
+        totalQuantity += quantity;
+        grandTotal += rowTotal;
+    });
+
+    // 経費を取得
+    const expense = parseInt(document.getElementById('calc-expense').value) || 0;
+
+    // 合計金額 = 総合計 + 経費
+    const finalTotal = grandTotal + expense;
+
+    // 送り = 総合計 - 合計金額 (つまり -経費 になる)
+    const sendAmount = grandTotal - finalTotal;
+
+    // 結果を表示
+    document.getElementById('total-quantity').textContent = totalQuantity + '本';
+    document.getElementById('grand-total').textContent = formatCurrency(grandTotal);
+    document.getElementById('final-total').textContent = formatCurrency(finalTotal);
+    document.getElementById('send-amount').textContent = formatCurrency(sendAmount);
+
+    // 出力プレビューを更新
+    updateCalculatorOutput();
+}
+
+function updateCalculatorOutput() {
+    const staffName = document.getElementById('calc-staff-name').value || '担当者名';
+    const dateInput = document.getElementById('calc-date').value;
+    const date = dateInput ? new Date(dateInput).toLocaleDateString('ja-JP', {year: 'numeric', month: '2-digit', day: '2-digit'}).replace(/\//g, '/') : '日付';
+
+    let totalQuantity = 0;
+    let details = [];
+    let ssDetails = [];
+
+    document.querySelectorAll('.calc-table tbody tr').forEach(row => {
+        const price = parseInt(row.dataset.price) || 0;
+        const quantity = parseInt(row.querySelector('.calc-quantity').value) || 0;
+        const other = parseInt(row.querySelector('.calc-other').value) || 0;
+        const commission = parseInt(row.querySelector('.calc-commission').value) || 0;
+
+        if (quantity > 0) {
+            const subtotal = price * quantity;
+            details.push(`${price}×${quantity}：${subtotal}`);
+            totalQuantity += quantity;
+
+            // SS部分
+            const rowTotal = subtotal + commission;
+            ssDetails.push(`${price}×${quantity}（${other}）（${subtotal}/${commission}/${rowTotal}）`);
+        }
+    });
+
+    const grandTotal = parseInt(document.getElementById('grand-total').textContent.replace(/[¥,]/g, '')) || 0;
+    const expense = parseInt(document.getElementById('calc-expense').value) || 0;
+    const finalTotal = grandTotal + expense;
+    const sendAmount = grandTotal - finalTotal;
+
+    let output = `―――――――――――\n`;
+    output += `${staffName}\n`;
+    output += `${date}：${String(totalQuantity).padStart(2, '0')}本\n`;
+    output += `合計：${grandTotal}\n`;
+    output += `詳細\n`;
+    details.forEach(d => output += `${d}\n`);
+    output += `経費：${expense}\n`;
+    output += `合計：${finalTotal}\n`;
+    output += `送り：${Math.abs(sendAmount)}\n`;
+    output += `―――――――――――\n`;
+    output += `SS\n`;
+    ssDetails.forEach(d => output += `${d}\n`);
+    output += `（TOTAL/${grandTotal}-${expense}＝${Math.abs(sendAmount)}）\n`;
+    output += `―――――――――――`;
+
+    document.getElementById('calc-output').textContent = output;
+}
+
+function clearCalculator() {
+    // 入力フィールドをクリア
+    document.getElementById('calc-staff-name').value = '';
+    document.getElementById('calc-date').value = new Date().toISOString().split('T')[0];
+
+    document.querySelectorAll('.calc-quantity, .calc-other, .calc-commission').forEach(input => {
+        input.value = '0';
+    });
+
+    document.getElementById('calc-expense').value = '0';
+
+    // 再計算
+    calculateAll();
+
+    showNotification('入力をクリアしました', 'info');
+}
+
+function copyCalculatorResult() {
+    const output = document.getElementById('calc-output').textContent;
+
+    navigator.clipboard.writeText(output).then(() => {
+        showNotification('結果をコピーしました', 'success');
+    }).catch(err => {
+        // フォールバック
+        const textarea = document.createElement('textarea');
+        textarea.value = output;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showNotification('結果をコピーしました', 'success');
+    });
+}
+
+function formatCurrency(amount) {
+    return '¥' + amount.toLocaleString();
+}
+
 // グローバル関数として公開（HTML内のonclickから呼び出し用）
 window.showSection = showSection;
 window.openAddTemplateModal = openAddTemplateModal;
@@ -897,3 +1055,5 @@ window.openUseModal = openUseModal;
 window.closeUseModal = closeUseModal;
 window.deleteTemplate = deleteTemplate;
 window.deleteCategory = deleteCategory;
+window.clearCalculator = clearCalculator;
+window.copyCalculatorResult = copyCalculatorResult;
