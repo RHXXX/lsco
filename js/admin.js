@@ -1080,10 +1080,10 @@ function updateCalculatorOutputForCalc(calcId) {
     outputA += `合計：${finalTotalA}\n`;  // 「合計金額」→「合計」
     outputA += `送り：${sendAmount}\n`;  // 送りは1回のみ表示
     outputA += `―――――――――――\n`;
-    outputA += `${sendAmount}送りでお願いします`;  // 「○○送りでお願いします」を追加
+    outputA += `${sendAmount}送りでお願いします\n`;  // 「○○送りでお願いします」を追加
 
     // 担当者Bブロック出力（修正版）- 「担当者B」ラベル削除
-    let outputB = `―――――――――――\n`;
+    let outputB = `\n―――――――――――\n`;
     outputB += `${apName}\n`;  // AP担当の入力値を表示
     detailsB.forEach(d => outputB += `${d}\n`);
     outputB += `（TOTAL/${totalBWithCommission}-${expense}＝${totalBWithCommission - expense}）\n`;
