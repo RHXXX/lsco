@@ -4,8 +4,36 @@
 // 初期設定
 // ============================================
 
-// デフォルトパスワード（初回のみ使用、変更可能）
-const DEFAULT_PASSWORD = 'lsco2024';
+// 4段階パスワード権限システム
+const USER_ROLES = {
+    OWNER: {
+        name: 'Owner',
+        level: 4,
+        password: '=j#4374;vU',
+        description: '統制管理者／所有者'
+    },
+    ADMIN: {
+        name: 'Admin',
+        level: 3,
+        password: 'euSR9bQKwT',
+        description: '管理者'
+    },
+    OPERATOR: {
+        name: 'Operator',
+        level: 2,
+        password: 'wdaWxyNtVc',
+        description: '運用者'
+    },
+    VIEWER: {
+        name: 'Viewer',
+        level: 1,
+        password: 'LSCO2026',
+        description: '閲覧者'
+    }
+};
+
+// 現在のユーザー権限を保持
+let currentUserRole = null;
 
 // LocalStorageキー
 const STORAGE_KEYS = {
@@ -13,7 +41,8 @@ const STORAGE_KEYS = {
     TEMPLATES: 'lsco_templates',
     CATEGORIES: 'lsco_categories',
     SESSION: 'lsco_admin_session',
-    CALC_SETTINGS: 'lsco_calc_settings'
+    CALC_SETTINGS: 'lsco_calc_settings',
+    USER_ROLE: 'lsco_user_role'
 };
 
 // デフォルトカテゴリー
@@ -120,7 +149,15 @@ LSCOサポートチームでございます。
 function checkSession() {
     const session = sessionStorage.getItem(STORAGE_KEYS.SESSION);
     if (session === 'active') {
+        // 保存された権限情報を復元
+        const savedRole = sessionStorage.getItem(STORAGE_KEYS.USER_ROLE);
+        if (savedRole) {
+            currentUserRole = JSON.parse(savedRole);
+        }
         showAdminPanel();
+        if (currentUserRole) {
+            updateUIForRole(currentUserRole);
+        }
     } else {
         showLoginScreen();
     }
@@ -217,12 +254,23 @@ function initializeEventListeners() {
 function handleLogin(e) {
     e.preventDefault();
     const password = document.getElementById('admin-password').value;
-    const storedPassword = localStorage.getItem(STORAGE_KEYS.PASSWORD);
 
-    if (password === storedPassword) {
+    // 4段階パスワードチェック
+    let matchedRole = null;
+    for (const [key, role] of Object.entries(USER_ROLES)) {
+        if (password === role.password) {
+            matchedRole = role;
+            break;
+        }
+    }
+
+    if (matchedRole) {
+        currentUserRole = matchedRole;
         sessionStorage.setItem(STORAGE_KEYS.SESSION, 'active');
+        sessionStorage.setItem(STORAGE_KEYS.USER_ROLE, JSON.stringify(matchedRole));
         showAdminPanel();
-        showNotification('ログインしました', 'success');
+        updateUIForRole(matchedRole);
+        showNotification(`${matchedRole.description}としてログインしました`, 'success');
     } else {
         document.getElementById('login-error').style.display = 'block';
         document.getElementById('admin-password').value = '';
@@ -231,8 +279,104 @@ function handleLogin(e) {
 
 function handleLogout() {
     sessionStorage.removeItem(STORAGE_KEYS.SESSION);
+    sessionStorage.removeItem(STORAGE_KEYS.USER_ROLE);
+    currentUserRole = null;
     showLoginScreen();
     showNotification('ログアウトしました', 'info');
+}
+
+// 権限レベルに応じたUI更新
+function updateUIForRole(role) {
+    // 権限表示を更新
+    const roleDisplay = document.getElementById('current-role-display');
+    if (roleDisplay) {
+        roleDisplay.textContent = `${role.description} (${role.name})`;
+    }
+
+    // Admin未満の場合、設定変更を制限
+    if (role.level < USER_ROLES.ADMIN.level) {
+        disableSettingsForLowerRoles();
+    } else {
+        enableSettingsForAdminAndAbove();
+    }
+}
+
+// Admin未満の権限で設定変更を無効化
+function disableSettingsForLowerRoles() {
+    // 集計設定の保存ボタンを無効化
+    const saveCalcSettingsBtn = document.querySelector('button[onclick="saveCalcSettings()"]');
+    if (saveCalcSettingsBtn) {
+        saveCalcSettingsBtn.disabled = true;
+        saveCalcSettingsBtn.title = '設定の保存にはAdmin以上の権限が必要です';
+        saveCalcSettingsBtn.style.opacity = '0.5';
+        saveCalcSettingsBtn.style.cursor = 'not-allowed';
+    }
+
+    // 集計設定の入力フィールドを読み取り専用に
+    document.querySelectorAll('.settings-commission-rate, .settings-ap-rate').forEach(input => {
+        input.disabled = true;
+        input.title = '設定の変更にはAdmin以上の権限が必要です';
+    });
+
+    // パスワード変更フォームを無効化
+    const changePasswordForm = document.getElementById('change-password-form');
+    if (changePasswordForm) {
+        changePasswordForm.querySelectorAll('input, button').forEach(el => {
+            el.disabled = true;
+        });
+    }
+
+    // カテゴリー管理を無効化
+    const addCategoryBtn = document.getElementById('add-category-btn');
+    if (addCategoryBtn) {
+        addCategoryBtn.disabled = true;
+    }
+    document.querySelectorAll('.category-list button').forEach(btn => {
+        btn.disabled = true;
+    });
+}
+
+// Admin以上の権限で設定変更を有効化
+function enableSettingsForAdminAndAbove() {
+    const saveCalcSettingsBtn = document.querySelector('button[onclick="saveCalcSettings()"]');
+    if (saveCalcSettingsBtn) {
+        saveCalcSettingsBtn.disabled = false;
+        saveCalcSettingsBtn.title = '';
+        saveCalcSettingsBtn.style.opacity = '1';
+        saveCalcSettingsBtn.style.cursor = 'pointer';
+    }
+
+    document.querySelectorAll('.settings-commission-rate, .settings-ap-rate').forEach(input => {
+        input.disabled = false;
+        input.title = '';
+    });
+
+    const changePasswordForm = document.getElementById('change-password-form');
+    if (changePasswordForm) {
+        changePasswordForm.querySelectorAll('input, button').forEach(el => {
+            el.disabled = false;
+        });
+    }
+
+    const addCategoryBtn = document.getElementById('add-category-btn');
+    if (addCategoryBtn) {
+        addCategoryBtn.disabled = false;
+    }
+}
+
+// 権限チェック関数
+function hasPermission(requiredLevel) {
+    if (!currentUserRole) return false;
+    return currentUserRole.level >= requiredLevel;
+}
+
+// Admin以上の権限が必要な操作のチェック
+function requireAdminPermission() {
+    if (!hasPermission(USER_ROLES.ADMIN.level)) {
+        showNotification('この操作にはAdmin以上の権限が必要です', 'error');
+        return false;
+    }
+    return true;
 }
 
 function togglePasswordVisibility() {
@@ -1140,7 +1284,7 @@ function updateCalculatorOutputForCalc(calcId) {
 
 function updateCalcDashboard() {
     // 各担当者の集計データをダッシュボードに反映
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 5; i++) {
         const container = document.querySelector(`[data-calc-id="${i}"]`);
         if (container) {
             const staffName = container.querySelector('.calc-staff-name').value || `担当者${i}`;
@@ -1167,7 +1311,7 @@ function updateCalcDashboard() {
 function updateAllCalcOutput() {
     let allOutput = '';
 
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 5; i++) {
         const container = document.querySelector(`[data-calc-id="${i}"]`);
         if (container) {
             const output = container.querySelector('.calc-output');
@@ -1320,9 +1464,14 @@ function updatePreviewTitle(calcId) {
 
 // 集計設定を保存
 function saveCalcSettings() {
+    // Admin以上の権限チェック
+    if (!requireAdminPermission()) {
+        return;
+    }
+
     const settings = {};
 
-    for (let calcId = 1; calcId <= 3; calcId++) {
+    for (let calcId = 1; calcId <= 5; calcId++) {
         const commissionRateInput = document.querySelector(`.settings-commission-rate[data-settings-id="${calcId}"]`);
         const apRateInput = document.querySelector(`.settings-ap-rate[data-settings-id="${calcId}"]`);
 
@@ -1345,7 +1494,7 @@ function loadCalcSettings() {
 
     const settings = JSON.parse(data);
 
-    for (let calcId = 1; calcId <= 3; calcId++) {
+    for (let calcId = 1; calcId <= 5; calcId++) {
         if (!settings[calcId]) continue;
 
         const commissionRateInput = document.querySelector(`.settings-commission-rate[data-settings-id="${calcId}"]`);
