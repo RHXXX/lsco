@@ -12,7 +12,8 @@ const STORAGE_KEYS = {
     PASSWORD: 'lsco_admin_password',
     TEMPLATES: 'lsco_templates',
     CATEGORIES: 'lsco_categories',
-    SESSION: 'lsco_admin_session'
+    SESSION: 'lsco_admin_session',
+    CALC_SETTINGS: 'lsco_calc_settings'
 };
 
 // デフォルトカテゴリー
@@ -339,6 +340,7 @@ function showSection(sectionName) {
         'calculator-1': '集計 - 担当者1',
         'calculator-2': '集計 - 担当者2',
         'calculator-3': '集計 - 担当者3',
+        'calculator-settings': '集計設定',
         calendar: 'カレンダー',
         settings: '設定'
     };
@@ -348,6 +350,8 @@ function showSection(sectionName) {
         const calcId = sectionName.split('-')[1];
         if (calcId === 'dashboard') {
             updateCalcDashboard();
+        } else if (calcId === 'settings') {
+            loadCalcSettings();
         } else {
             initCalculatorPage(parseInt(calcId));
         }
@@ -966,6 +970,9 @@ function initCalculatorPage(calcId) {
         }
 
         container.dataset.initialized = 'true';
+
+        // 設定ページで保存された「別担当」「歩合」の値を適用
+        applyCalcSettingsToPage(calcId);
     }
 
     // 初回計算
@@ -1271,6 +1278,78 @@ function updatePreviewTitle(calcId) {
     }
 }
 
+// ============================================
+// 集計設定（別担当・歩合）の保存・読み込み
+// ============================================
+
+// 集計設定を保存
+function saveCalcSettings() {
+    const settings = {};
+
+    for (let calcId = 1; calcId <= 3; calcId++) {
+        const table = document.querySelector(`table[data-settings-id="${calcId}"]`);
+        if (!table) continue;
+
+        settings[calcId] = {};
+        table.querySelectorAll('tbody tr').forEach(row => {
+            const price = row.dataset.price;
+            const other = parseInt(row.querySelector('.settings-other').value) || 0;
+            const commission = parseInt(row.querySelector('.settings-commission').value) || 0;
+            settings[calcId][price] = { other, commission };
+        });
+    }
+
+    localStorage.setItem(STORAGE_KEYS.CALC_SETTINGS, JSON.stringify(settings));
+    showNotification('集計設定を保存しました', 'success');
+}
+
+// 集計設定を読み込み（設定ページ用）
+function loadCalcSettings() {
+    const data = localStorage.getItem(STORAGE_KEYS.CALC_SETTINGS);
+    if (!data) return;
+
+    const settings = JSON.parse(data);
+
+    for (let calcId = 1; calcId <= 3; calcId++) {
+        const table = document.querySelector(`table[data-settings-id="${calcId}"]`);
+        if (!table || !settings[calcId]) continue;
+
+        table.querySelectorAll('tbody tr').forEach(row => {
+            const price = row.dataset.price;
+            if (settings[calcId][price]) {
+                row.querySelector('.settings-other').value = settings[calcId][price].other || 0;
+                row.querySelector('.settings-commission').value = settings[calcId][price].commission || 0;
+            }
+        });
+    }
+}
+
+// 集計設定を取得（集計ページ用）
+function getCalcSettings(calcId) {
+    const data = localStorage.getItem(STORAGE_KEYS.CALC_SETTINGS);
+    if (!data) return null;
+
+    const settings = JSON.parse(data);
+    return settings[calcId] || null;
+}
+
+// 集計ページに設定値を適用
+function applyCalcSettingsToPage(calcId) {
+    const settings = getCalcSettings(calcId);
+    if (!settings) return;
+
+    const container = document.querySelector(`[data-calc-id="${calcId}"]`);
+    if (!container) return;
+
+    container.querySelectorAll('.calc-table-b tbody tr').forEach(row => {
+        const price = row.dataset.price;
+        if (settings[price]) {
+            row.querySelector('.calc-b-other').value = settings[price].other || 0;
+            row.querySelector('.calc-b-commission').value = settings[price].commission || 0;
+        }
+    });
+}
+
 // グローバル関数として公開（HTML内のonclickから呼び出し用）
 window.showSection = showSection;
 window.openAddTemplateModal = openAddTemplateModal;
@@ -1285,3 +1364,5 @@ window.copyCalculatorResult = copyCalculatorResult;
 window.copyCalculatorResultA = copyCalculatorResultA;
 window.copyCalculatorResultB = copyCalculatorResultB;
 window.copyAllCalculatorResults = copyAllCalculatorResults;
+window.saveCalcSettings = saveCalcSettings;
+window.loadCalcSettings = loadCalcSettings;

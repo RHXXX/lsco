@@ -70,6 +70,9 @@
                             <li class="submenu-item" data-section="calculator-3">
                                 <a href="#"><i class="fas fa-user"></i> 担当者3</a>
                             </li>
+                            <li class="submenu-item" data-section="calculator-settings">
+                                <a href="#"><i class="fas fa-sliders-h"></i> 集計設定</a>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item" data-section="calendar">
@@ -709,6 +712,153 @@
                             <div class="calendar-iframe-wrapper">
                                 <iframe src="https://calendar.google.com/calendar/embed?src=93719f9fa6c4da25cb9ec4f12baee8d814d9861ffe3ddddbdf23d26e90006177%40group.calendar.google.com&ctz=Asia%2FTokyo" style="border: 0" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 集計設定 -->
+                <section id="calculator-settings-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-sliders-h"></i> 集計設定（別担当・歩合）</h2>
+                        <button type="button" class="primary-btn" onclick="saveCalcSettings()">
+                            <i class="fas fa-save"></i> 設定を保存
+                        </button>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3><i class="fas fa-info-circle"></i> 設定について</h3>
+                        <p style="color: #666; margin-bottom: 1rem;">
+                            ここで設定した「別担当」「歩合」の値は保存され、集計ページで自動的に読み込まれます。<br>
+                            本数と経費は集計ページで毎回入力してください。
+                        </p>
+                    </div>
+
+                    <!-- 担当者1の設定 -->
+                    <div class="settings-group">
+                        <h3><i class="fas fa-user"></i> 担当者1の設定</h3>
+                        <div class="calc-settings-table-wrapper">
+                            <table class="calc-settings-table" data-settings-id="1">
+                                <thead>
+                                    <tr>
+                                        <th>金額</th>
+                                        <th>別担当</th>
+                                        <th>歩合</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-price="40000">
+                                        <td class="price-cell">¥40,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="30000">
+                                        <td class="price-cell">¥30,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="25000">
+                                        <td class="price-cell">¥25,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="20000">
+                                        <td class="price-cell">¥20,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="15000">
+                                        <td class="price-cell">¥15,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 担当者2の設定 -->
+                    <div class="settings-group">
+                        <h3><i class="fas fa-user"></i> 担当者2の設定</h3>
+                        <div class="calc-settings-table-wrapper">
+                            <table class="calc-settings-table" data-settings-id="2">
+                                <thead>
+                                    <tr>
+                                        <th>金額</th>
+                                        <th>別担当</th>
+                                        <th>歩合</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-price="40000">
+                                        <td class="price-cell">¥40,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="30000">
+                                        <td class="price-cell">¥30,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="25000">
+                                        <td class="price-cell">¥25,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="20000">
+                                        <td class="price-cell">¥20,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="15000">
+                                        <td class="price-cell">¥15,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 担当者3の設定 -->
+                    <div class="settings-group">
+                        <h3><i class="fas fa-user"></i> 担当者3の設定</h3>
+                        <div class="calc-settings-table-wrapper">
+                            <table class="calc-settings-table" data-settings-id="3">
+                                <thead>
+                                    <tr>
+                                        <th>金額</th>
+                                        <th>別担当</th>
+                                        <th>歩合</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-price="40000">
+                                        <td class="price-cell">¥40,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="30000">
+                                        <td class="price-cell">¥30,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="25000">
+                                        <td class="price-cell">¥25,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="20000">
+                                        <td class="price-cell">¥20,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                    <tr data-price="15000">
+                                        <td class="price-cell">¥15,000</td>
+                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
+                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
