@@ -253,8 +253,11 @@
                             <button type="button" class="secondary-btn" onclick="clearCalculator(1)">
                                 <i class="fas fa-eraser"></i> クリア
                             </button>
-                            <button type="button" class="primary-btn" onclick="copyCalculatorResult(1)">
-                                <i class="fas fa-copy"></i> 結果をコピー
+                            <button type="button" class="primary-btn" onclick="copyCalculatorResultA(1)">
+                                <i class="fas fa-copy"></i> 担当者Aをコピー
+                            </button>
+                            <button type="button" class="primary-btn" onclick="copyCalculatorResultB(1)">
+                                <i class="fas fa-copy"></i> 担当者Bをコピー
                             </button>
                         </div>
                     </div>
@@ -268,6 +271,10 @@
                                     <input type="text" class="calc-staff-name" placeholder="例: 田中">
                                 </div>
                                 <div class="calc-field">
+                                    <label>AP担当</label>
+                                    <input type="text" class="calc-ap-name" placeholder="例: 山田">
+                                </div>
+                                <div class="calc-field">
                                     <label>日付</label>
                                     <input type="date" class="calc-date">
                                 </div>
@@ -377,6 +384,8 @@
                             <h3><i class="fas fa-file-alt"></i> 出力プレビュー</h3>
                             <div class="calc-preview">
                                 <pre class="calc-output"></pre>
+                                <pre class="calc-output-a" style="display:none;"></pre>
+                                <pre class="calc-output-b" style="display:none;"></pre>
                             </div>
                         </div>
                     </div>
@@ -390,8 +399,11 @@
                             <button type="button" class="secondary-btn" onclick="clearCalculator(2)">
                                 <i class="fas fa-eraser"></i> クリア
                             </button>
-                            <button type="button" class="primary-btn" onclick="copyCalculatorResult(2)">
-                                <i class="fas fa-copy"></i> 結果をコピー
+                            <button type="button" class="primary-btn" onclick="copyCalculatorResultA(2)">
+                                <i class="fas fa-copy"></i> 担当者Aをコピー
+                            </button>
+                            <button type="button" class="primary-btn" onclick="copyCalculatorResultB(2)">
+                                <i class="fas fa-copy"></i> 担当者Bをコピー
                             </button>
                         </div>
                     </div>
@@ -405,6 +417,10 @@
                                     <input type="text" class="calc-staff-name" placeholder="例: 田中">
                                 </div>
                                 <div class="calc-field">
+                                    <label>AP担当</label>
+                                    <input type="text" class="calc-ap-name" placeholder="例: 山田">
+                                </div>
+                                <div class="calc-field">
                                     <label>日付</label>
                                     <input type="date" class="calc-date">
                                 </div>
@@ -514,6 +530,8 @@
                             <h3><i class="fas fa-file-alt"></i> 出力プレビュー</h3>
                             <div class="calc-preview">
                                 <pre class="calc-output"></pre>
+                                <pre class="calc-output-a" style="display:none;"></pre>
+                                <pre class="calc-output-b" style="display:none;"></pre>
                             </div>
                         </div>
                     </div>
@@ -527,8 +545,11 @@
                             <button type="button" class="secondary-btn" onclick="clearCalculator(3)">
                                 <i class="fas fa-eraser"></i> クリア
                             </button>
-                            <button type="button" class="primary-btn" onclick="copyCalculatorResult(3)">
-                                <i class="fas fa-copy"></i> 結果をコピー
+                            <button type="button" class="primary-btn" onclick="copyCalculatorResultA(3)">
+                                <i class="fas fa-copy"></i> 担当者Aをコピー
+                            </button>
+                            <button type="button" class="primary-btn" onclick="copyCalculatorResultB(3)">
+                                <i class="fas fa-copy"></i> 担当者Bをコピー
                             </button>
                         </div>
                     </div>
@@ -540,6 +561,10 @@
                                 <div class="calc-field">
                                     <label>担当者名</label>
                                     <input type="text" class="calc-staff-name" placeholder="例: 田中">
+                                </div>
+                                <div class="calc-field">
+                                    <label>AP担当</label>
+                                    <input type="text" class="calc-ap-name" placeholder="例: 山田">
                                 </div>
                                 <div class="calc-field">
                                     <label>日付</label>
@@ -651,6 +676,8 @@
                             <h3><i class="fas fa-file-alt"></i> 出力プレビュー</h3>
                             <div class="calc-preview">
                                 <pre class="calc-output"></pre>
+                                <pre class="calc-output-a" style="display:none;"></pre>
+                                <pre class="calc-output-b" style="display:none;"></pre>
                             </div>
                         </div>
                     </div>

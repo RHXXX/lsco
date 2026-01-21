@@ -932,7 +932,7 @@ function showNotification(message, type = 'info') {
 }
 
 // ============================================
-// 集計機能（3人分対応版）
+// 集計機能（3人分対応版）- 修正版
 // ============================================
 
 function initCalculatorPage(calcId) {
@@ -955,6 +955,12 @@ function initCalculatorPage(calcId) {
         // 担当者名と日付の変更時にもプレビュー更新
         container.querySelector('.calc-staff-name').addEventListener('input', () => updateCalculatorOutputForCalc(calcId));
         container.querySelector('.calc-date').addEventListener('change', () => updateCalculatorOutputForCalc(calcId));
+
+        // AP担当の変更時にもプレビュー更新
+        const apNameInput = container.querySelector('.calc-ap-name');
+        if (apNameInput) {
+            apNameInput.addEventListener('input', () => updateCalculatorOutputForCalc(calcId));
+        }
 
         container.dataset.initialized = 'true';
     }
@@ -1011,11 +1017,13 @@ function calculateAllForCalc(calcId) {
     updateCalcDashboard();
 }
 
+// 修正版: 出力プレビュー生成関数
 function updateCalculatorOutputForCalc(calcId) {
     const container = document.querySelector(`[data-calc-id="${calcId}"]`);
     if (!container) return;
 
     const staffName = container.querySelector('.calc-staff-name').value || '担当者名';
+    const apName = container.querySelector('.calc-ap-name') ? container.querySelector('.calc-ap-name').value || 'AP担当者名' : 'AP担当者名';
     const dateInput = container.querySelector('.calc-date').value;
     const date = dateInput ? dateInput : '日付';
 
@@ -1048,31 +1056,47 @@ function updateCalculatorOutputForCalc(calcId) {
 
     const expense = parseInt(container.querySelector('.calc-expense').value) || 0;
 
-    // 担当者A: 合計金額 = 総合計 + 経費
+    // 担当者A: 合計 = 総合計 + 経費
     const finalTotalA = grandTotalA + expense;
 
-    // 担当者B: 送り = 総合計 - 経費（Bが経費を負担するので、Bに行く金額は総合計から経費を引いた額）
+    // 担当者B: 送り = 総合計 - 経費
     const sendAmount = grandTotalA - expense;
 
-    // 担当者Aブロック出力
-    let output = `―――――――――――\n`;
-    output += `担当者名：${staffName}\n`;
-    output += `${date}：${String(totalQuantity).padStart(2, '0')}本\n`;
-    output += `総合計：${grandTotalA}\n`;
-    detailsA.forEach(d => output += `${d}\n`);
-    output += `経費：${expense}\n`;
-    output += `合計金額：${finalTotalA}\n`;
-    output += `送り：${sendAmount}\n`;
-    output += `―――――――――――\n`;
+    // ===== 修正後のフォーマット =====
 
-    // 担当者Bブロック出力
-    output += `送り：${sendAmount}\n\n`;
-    output += `${staffName}\n`;
-    detailsB.forEach(d => output += `${d}\n`);
-    output += `（TOTAL/${totalBWithCommission}-${expense}＝${totalBWithCommission - expense}）\n`;
-    output += `―――――――――――`;
+    // 担当者Aブロック出力（修正版）
+    let outputA = `担当者A \n`;
+    outputA += `―――――――――――\n`;
+    outputA += `${staffName}\n`;  // 「担当者名：」を削除、入力値のみ表示
+    outputA += `${date}：${String(totalQuantity).padStart(2, '0')}本\n`;
+    outputA += `累計：${grandTotalA}\n`;  // 「総合計」→「累計」
+    outputA += `詳細\n`;  // 「詳細」を追加
+    detailsA.forEach(d => outputA += `${d}\n`);
+    outputA += `経費：${expense}\n`;
+    outputA += `合計：${finalTotalA}\n`;  // 「合計金額」→「合計」
+    outputA += `送り：${sendAmount}\n`;  // 送りは1回のみ表示
+    outputA += `―――――――――――\n`;
+    outputA += `${sendAmount}送りでお願いします\n`;  // 「○○送りでお願いします」を追加
 
+    // 担当者Bブロック出力（修正版）
+    let outputB = `\n担当者B \n`;
+    outputB += `―――――――――――\n`;
+    outputB += `${apName}\n`;  // AP担当の入力値を表示
+    detailsB.forEach(d => outputB += `${d}\n`);
+    outputB += `（TOTAL/${totalBWithCommission}-${expense}＝${totalBWithCommission - expense}）\n`;
+    outputB += `―――――――――――`;
+
+    // 全体出力（プレビュー用）
+    const output = outputA + outputB;
+
+    // 各出力要素に設定
     container.querySelector('.calc-output').textContent = output;
+
+    // 個別コピー用に保存
+    const outputAElement = container.querySelector('.calc-output-a');
+    const outputBElement = container.querySelector('.calc-output-b');
+    if (outputAElement) outputAElement.textContent = outputA;
+    if (outputBElement) outputBElement.textContent = outputB;
 }
 
 function updateCalcDashboard() {
@@ -1126,6 +1150,8 @@ function clearCalculator(calcId) {
 
     // 入力フィールドをクリア
     container.querySelector('.calc-staff-name').value = '';
+    const apNameInput = container.querySelector('.calc-ap-name');
+    if (apNameInput) apNameInput.value = '';
     container.querySelector('.calc-date').value = new Date().toISOString().split('T')[0];
 
     container.querySelectorAll('.calc-b-quantity, .calc-b-other, .calc-b-commission').forEach(input => {
@@ -1140,6 +1166,55 @@ function clearCalculator(calcId) {
     showNotification('入力をクリアしました', 'info');
 }
 
+// 担当者Aの結果をコピー
+function copyCalculatorResultA(calcId) {
+    const container = document.querySelector(`[data-calc-id="${calcId}"]`);
+    if (!container) return;
+
+    const outputA = container.querySelector('.calc-output-a');
+    if (!outputA) return;
+
+    const text = outputA.textContent;
+
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('担当者Aの結果をコピーしました', 'success');
+    }).catch(err => {
+        // フォールバック
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showNotification('担当者Aの結果をコピーしました', 'success');
+    });
+}
+
+// 担当者Bの結果をコピー
+function copyCalculatorResultB(calcId) {
+    const container = document.querySelector(`[data-calc-id="${calcId}"]`);
+    if (!container) return;
+
+    const outputB = container.querySelector('.calc-output-b');
+    if (!outputB) return;
+
+    const text = outputB.textContent;
+
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('担当者Bの結果をコピーしました', 'success');
+    }).catch(err => {
+        // フォールバック
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showNotification('担当者Bの結果をコピーしました', 'success');
+    });
+}
+
+// 旧コピー関数（互換性のため残す）
 function copyCalculatorResult(calcId) {
     const container = document.querySelector(`[data-calc-id="${calcId}"]`);
     if (!container) return;
@@ -1192,4 +1267,6 @@ window.deleteTemplate = deleteTemplate;
 window.deleteCategory = deleteCategory;
 window.clearCalculator = clearCalculator;
 window.copyCalculatorResult = copyCalculatorResult;
+window.copyCalculatorResultA = copyCalculatorResultA;
+window.copyCalculatorResultB = copyCalculatorResultB;
 window.copyAllCalculatorResults = copyAllCalculatorResults;
