@@ -953,7 +953,10 @@ function initCalculatorPage(calcId) {
         });
 
         // 担当者名と日付の変更時にもプレビュー更新
-        container.querySelector('.calc-staff-name').addEventListener('input', () => updateCalculatorOutputForCalc(calcId));
+        container.querySelector('.calc-staff-name').addEventListener('input', () => {
+            updateCalculatorOutputForCalc(calcId);
+            updatePreviewTitle(calcId);
+        });
         container.querySelector('.calc-date').addEventListener('change', () => updateCalculatorOutputForCalc(calcId));
 
         // AP担当の変更時にもプレビュー更新
@@ -967,6 +970,8 @@ function initCalculatorPage(calcId) {
 
     // 初回計算
     calculateAllForCalc(calcId);
+    // プレビュータイトルの初期化
+    updatePreviewTitle(calcId);
 }
 
 function calculateAllForCalc(calcId) {
@@ -1064,9 +1069,8 @@ function updateCalculatorOutputForCalc(calcId) {
 
     // ===== 修正後のフォーマット =====
 
-    // 担当者Aブロック出力（修正版）
-    let outputA = `担当者A \n`;
-    outputA += `―――――――――――\n`;
+    // 担当者Aブロック出力（修正版）- 「担当者A」ラベル削除
+    let outputA = `―――――――――――\n`;
     outputA += `${staffName}\n`;  // 「担当者名：」を削除、入力値のみ表示
     outputA += `${date}：${String(totalQuantity).padStart(2, '0')}本\n`;
     outputA += `累計：${grandTotalA}\n`;  // 「総合計」→「累計」
@@ -1076,11 +1080,10 @@ function updateCalculatorOutputForCalc(calcId) {
     outputA += `合計：${finalTotalA}\n`;  // 「合計金額」→「合計」
     outputA += `送り：${sendAmount}\n`;  // 送りは1回のみ表示
     outputA += `―――――――――――\n`;
-    outputA += `${sendAmount}送りでお願いします\n`;  // 「○○送りでお願いします」を追加
+    outputA += `${sendAmount}送りでお願いします`;  // 「○○送りでお願いします」を追加
 
-    // 担当者Bブロック出力（修正版）
-    let outputB = `\n担当者B \n`;
-    outputB += `―――――――――――\n`;
+    // 担当者Bブロック出力（修正版）- 「担当者B」ラベル削除
+    let outputB = `―――――――――――\n`;
     outputB += `${apName}\n`;  // AP担当の入力値を表示
     detailsB.forEach(d => outputB += `${d}\n`);
     outputB += `（TOTAL/${totalBWithCommission}-${expense}＝${totalBWithCommission - expense}）\n`;
@@ -1254,6 +1257,18 @@ function copyAllCalculatorResults() {
 
 function formatCurrency(amount) {
     return '¥' + amount.toLocaleString();
+}
+
+// プレビュータイトルを担当者名で更新
+function updatePreviewTitle(calcId) {
+    const container = document.querySelector(`[data-calc-id="${calcId}"]`);
+    if (!container) return;
+
+    const staffName = container.querySelector('.calc-staff-name').value || '担当者A';
+    const previewTitleElement = container.querySelector('.preview-title-name');
+    if (previewTitleElement) {
+        previewTitleElement.textContent = staffName;
+    }
 }
 
 // グローバル関数として公開（HTML内のonclickから呼び出し用）
