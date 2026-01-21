@@ -952,8 +952,12 @@ function initCalculatorPage(calcId) {
 
     // 各入力フィールドにイベントリスナーを追加（重複防止）
     if (!container.dataset.initialized) {
-        container.querySelectorAll('.calc-b-quantity, .calc-b-other, .calc-b-commission, .calc-expense').forEach(input => {
-            input.addEventListener('input', () => calculateAllForCalc(calcId));
+        // 本数・別担当・経費の変更時に計算
+        container.querySelectorAll('.calc-b-quantity, .calc-b-other, .calc-expense').forEach(input => {
+            input.addEventListener('input', () => {
+                updateCommissionDisplay(calcId);  // 歩合を自動計算
+                calculateAllForCalc(calcId);
+            });
         });
 
         // 担当者名と日付の変更時にもプレビュー更新
@@ -971,11 +975,12 @@ function initCalculatorPage(calcId) {
 
         container.dataset.initialized = 'true';
 
-        // 設定ページで保存された「別担当」「歩合」の値を適用
+        // 設定ページで保存された歩合設定値を適用し、歩合を自動計算
         applyCalcSettingsToPage(calcId);
     }
 
     // 初回計算
+    updateCommissionDisplay(calcId);  // 歩合を自動計算
     calculateAllForCalc(calcId);
     // プレビュータイトルの初期化
     updatePreviewTitle(calcId);
@@ -1034,6 +1039,10 @@ function updateCalculatorOutputForCalc(calcId) {
     const container = document.querySelector(`[data-calc-id="${calcId}"]`);
     if (!container) return;
 
+    const settings = getCalcSettings(calcId);
+    const commissionRate = settings ? settings.commissionRate : 0;
+    const apRate = settings ? settings.apRate : 0;
+
     const staffName = container.querySelector('.calc-staff-name').value || '担当者名';
     const apName = container.querySelector('.calc-ap-name') ? container.querySelector('.calc-ap-name').value || 'AP担当者名' : 'AP担当者名';
     const dateInput = container.querySelector('.calc-date').value;
@@ -1042,27 +1051,44 @@ function updateCalculatorOutputForCalc(calcId) {
     let totalQuantity = 0;
     let detailsA = [];
     let detailsB = [];
-    let grandTotalA = 0;
-    let totalBWithCommission = 0;
+    let ruikei = 0;  // 累計 = 金額 × 本数 の合計
+    let grandTotalA = 0;  // 担当者Aの総合計（50%）
+    let totalApAmount = 0;  // AP設定による計算用
+    let totalCommission = 0;  // 歩合合計
 
     container.querySelectorAll('.calc-table-b tbody tr').forEach(rowB => {
         const price = parseInt(rowB.dataset.price) || 0;
         const quantityB = parseInt(rowB.querySelector('.calc-b-quantity').value) || 0;
         const otherB = parseInt(rowB.querySelector('.calc-b-other').value) || 0;
-        const commissionB = parseInt(rowB.querySelector('.calc-b-commission').value) || 0;
 
-        if (quantityB > 0) {
+        // 歩合は自動計算: (本数 + 別担当) × 歩合設定値
+        const commissionB = (quantityB + otherB) * commissionRate;
+
+        if (quantityB > 0 || otherB > 0) {
+            // 累計 = 金額 × 本数 の合計
+            ruikei += price * quantityB;
+
             // 担当者A: 金額の50%
             const subtotalA = Math.floor(price * quantityB * 0.5);
-            detailsA.push(`${price}×${quantityB}：${subtotalA}`);
+            if (quantityB > 0) {
+                detailsA.push(`${price}×${quantityB}：${subtotalA}`);
+            }
             grandTotalA += subtotalA;
             totalQuantity += quantityB;
 
-            // 担当者B: 金額/歩合/合計
-            const pricePartB = Math.floor(price * quantityB * 0.5); // 担当者Bの金額（残り50%から計算）
-            const rowTotalB = pricePartB + commissionB;
-            detailsB.push(`${price}×${quantityB}（${otherB}）（${pricePartB}/${commissionB}/${rowTotalB}）`);
-            totalBWithCommission += rowTotalB;
+            // 担当者B: AP設定を使用
+            // AP金額 = (本数 + 別担当) × AP設定値
+            const apAmount = (quantityB + otherB) * apRate;
+            // 歩合金額
+            const rowCommission = commissionB;
+            // 合計 = AP金額 + 歩合金額
+            const rowTotalB = apAmount + rowCommission;
+
+            if (quantityB > 0 || otherB > 0) {
+                detailsB.push(`${price}×${quantityB}（${otherB}）（${apAmount}/${rowCommission}/${rowTotalB}）`);
+            }
+            totalApAmount += apAmount;
+            totalCommission += rowCommission;
         }
     });
 
@@ -1074,13 +1100,16 @@ function updateCalculatorOutputForCalc(calcId) {
     // 担当者B: 送り = 総合計 - 経費
     const sendAmount = grandTotalA - expense;
 
+    // AP担当者のTOTAL
+    const totalBWithCommission = totalApAmount + totalCommission;
+
     // ===== 修正後のフォーマット =====
 
     // 担当者Aブロック出力（修正版）- 「担当者A」ラベル削除
     let outputA = `―――――――――――\n`;
     outputA += `${staffName}\n`;  // 「担当者名：」を削除、入力値のみ表示
     outputA += `${date}：${String(totalQuantity).padStart(2, '0')}本\n`;
-    outputA += `累計：${grandTotalA}\n`;  // 「総合計」→「累計」
+    outputA += `累計：${ruikei}\n`;  // 累計 = 金額 × 本数 の合計
     outputA += `詳細\n`;  // 「詳細」を追加
     detailsA.forEach(d => outputA += `${d}\n`);
     outputA += `経費：${expense}\n`;
@@ -1164,13 +1193,20 @@ function clearCalculator(calcId) {
     if (apNameInput) apNameInput.value = '';
     container.querySelector('.calc-date').value = new Date().toISOString().split('T')[0];
 
-    container.querySelectorAll('.calc-b-quantity, .calc-b-other, .calc-b-commission').forEach(input => {
+    // 本数と別担当をクリア（歩合は自動計算なのでクリア不要）
+    container.querySelectorAll('.calc-b-quantity, .calc-b-other').forEach(input => {
         input.value = '0';
     });
 
     container.querySelector('.calc-expense').value = '0';
 
+    // 歩合表示をリセット
+    container.querySelectorAll('.calc-b-commission-display').forEach(display => {
+        display.textContent = '0';
+    });
+
     // 再計算
+    updateCommissionDisplay(calcId);
     calculateAllForCalc(calcId);
 
     showNotification('入力をクリアしました', 'info');
@@ -1279,7 +1315,7 @@ function updatePreviewTitle(calcId) {
 }
 
 // ============================================
-// 集計設定（別担当・歩合）の保存・読み込み
+// 集計設定（歩合・AP設定）の保存・読み込み
 // ============================================
 
 // 集計設定を保存
@@ -1287,16 +1323,15 @@ function saveCalcSettings() {
     const settings = {};
 
     for (let calcId = 1; calcId <= 3; calcId++) {
-        const table = document.querySelector(`table[data-settings-id="${calcId}"]`);
-        if (!table) continue;
+        const commissionRateInput = document.querySelector(`.settings-commission-rate[data-settings-id="${calcId}"]`);
+        const apRateInput = document.querySelector(`.settings-ap-rate[data-settings-id="${calcId}"]`);
 
-        settings[calcId] = {};
-        table.querySelectorAll('tbody tr').forEach(row => {
-            const price = row.dataset.price;
-            const other = parseInt(row.querySelector('.settings-other').value) || 0;
-            const commission = parseInt(row.querySelector('.settings-commission').value) || 0;
-            settings[calcId][price] = { other, commission };
-        });
+        if (commissionRateInput && apRateInput) {
+            settings[calcId] = {
+                commissionRate: parseInt(commissionRateInput.value) || 0,  // 歩合（1本単価）
+                apRate: parseInt(apRateInput.value) || 0  // AP設定（1本単価）
+            };
+        }
     }
 
     localStorage.setItem(STORAGE_KEYS.CALC_SETTINGS, JSON.stringify(settings));
@@ -1311,16 +1346,17 @@ function loadCalcSettings() {
     const settings = JSON.parse(data);
 
     for (let calcId = 1; calcId <= 3; calcId++) {
-        const table = document.querySelector(`table[data-settings-id="${calcId}"]`);
-        if (!table || !settings[calcId]) continue;
+        if (!settings[calcId]) continue;
 
-        table.querySelectorAll('tbody tr').forEach(row => {
-            const price = row.dataset.price;
-            if (settings[calcId][price]) {
-                row.querySelector('.settings-other').value = settings[calcId][price].other || 0;
-                row.querySelector('.settings-commission').value = settings[calcId][price].commission || 0;
-            }
-        });
+        const commissionRateInput = document.querySelector(`.settings-commission-rate[data-settings-id="${calcId}"]`);
+        const apRateInput = document.querySelector(`.settings-ap-rate[data-settings-id="${calcId}"]`);
+
+        if (commissionRateInput) {
+            commissionRateInput.value = settings[calcId].commissionRate || 0;
+        }
+        if (apRateInput) {
+            apRateInput.value = settings[calcId].apRate || 0;
+        }
     }
 }
 
@@ -1333,21 +1369,44 @@ function getCalcSettings(calcId) {
     return settings[calcId] || null;
 }
 
-// 集計ページに設定値を適用
+// 集計ページに設定値を適用（歩合自動計算）
 function applyCalcSettingsToPage(calcId) {
-    const settings = getCalcSettings(calcId);
-    if (!settings) return;
+    // 初回計算をトリガー
+    updateCommissionDisplay(calcId);
+}
 
+// 歩合表示を自動更新（本数+別担当）×歩合設定値
+function updateCommissionDisplay(calcId) {
+    const settings = getCalcSettings(calcId);
     const container = document.querySelector(`[data-calc-id="${calcId}"]`);
     if (!container) return;
 
+    const commissionRate = settings ? settings.commissionRate : 0;
+    let totalQuantity = 0;
+    let totalCommission = 0;
+
     container.querySelectorAll('.calc-table-b tbody tr').forEach(row => {
-        const price = row.dataset.price;
-        if (settings[price]) {
-            row.querySelector('.calc-b-other').value = settings[price].other || 0;
-            row.querySelector('.calc-b-commission').value = settings[price].commission || 0;
+        const quantity = parseInt(row.querySelector('.calc-b-quantity').value) || 0;
+        const other = parseInt(row.querySelector('.calc-b-other').value) || 0;
+
+        // 歩合 = (本数 + 別担当) × 歩合設定値
+        const commission = (quantity + other) * commissionRate;
+
+        // 歩合表示を更新
+        const commissionDisplay = row.querySelector('.calc-b-commission-display');
+        if (commissionDisplay) {
+            commissionDisplay.textContent = commission.toLocaleString();
         }
+
+        totalQuantity += quantity;
+        totalCommission += commission;
     });
+
+    // 合計表示を更新
+    const totalQuantityEl = container.querySelector('.calc-total-quantity');
+    const totalCommissionEl = container.querySelector('.calc-total-commission');
+    if (totalQuantityEl) totalQuantityEl.textContent = totalQuantity;
+    if (totalCommissionEl) totalCommissionEl.textContent = totalCommission.toLocaleString();
 }
 
 // グローバル関数として公開（HTML内のonclickから呼び出し用）

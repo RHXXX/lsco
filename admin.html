@@ -284,9 +284,9 @@
                             </div>
                         </div>
 
-                        <!-- 担当者B入力（メイン入力） -->
+                        <!-- データ入力 -->
                         <div class="calc-section calc-section-b">
-                            <h3><i class="fas fa-edit"></i> 担当者Bデータ入力</h3>
+                            <h3><i class="fas fa-edit"></i> データ入力</h3>
                             <div class="calc-table-wrapper">
                                 <table class="calc-table calc-table-b">
                                     <thead>
@@ -294,7 +294,7 @@
                                             <th>金額</th>
                                             <th>本数</th>
                                             <th>別担当</th>
-                                            <th>歩合</th>
+                                            <th>歩合（自動）</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -302,34 +302,40 @@
                                             <td class="price-cell">¥40,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="30000">
                                             <td class="price-cell">¥30,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="25000">
                                             <td class="price-cell">¥25,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="20000">
                                             <td class="price-cell">¥20,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="15000">
                                             <td class="price-cell">¥15,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="calc-totals-row" style="margin-top: 1rem; padding: 0.5rem; background: #f5f5f5; border-radius: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span><strong>合計本数:</strong> <span class="calc-total-quantity">0</span>本</span>
+                                    <span><strong>合計歩合:</strong> <span class="calc-total-commission">0</span></span>
+                                </div>
                             </div>
                             <div class="calc-row" style="margin-top: 1rem;">
                                 <div class="calc-field">
@@ -430,9 +436,9 @@
                             </div>
                         </div>
 
-                        <!-- 担当者B入力（メイン入力） -->
+                        <!-- データ入力 -->
                         <div class="calc-section calc-section-b">
-                            <h3><i class="fas fa-edit"></i> 担当者Bデータ入力</h3>
+                            <h3><i class="fas fa-edit"></i> データ入力</h3>
                             <div class="calc-table-wrapper">
                                 <table class="calc-table calc-table-b">
                                     <thead>
@@ -440,7 +446,7 @@
                                             <th>金額</th>
                                             <th>本数</th>
                                             <th>別担当</th>
-                                            <th>歩合</th>
+                                            <th>歩合（自動）</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -448,34 +454,40 @@
                                             <td class="price-cell">¥40,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="30000">
                                             <td class="price-cell">¥30,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="25000">
                                             <td class="price-cell">¥25,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="20000">
                                             <td class="price-cell">¥20,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="15000">
                                             <td class="price-cell">¥15,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="calc-totals-row" style="margin-top: 1rem; padding: 0.5rem; background: #f5f5f5; border-radius: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span><strong>合計本数:</strong> <span class="calc-total-quantity">0</span>本</span>
+                                    <span><strong>合計歩合:</strong> <span class="calc-total-commission">0</span></span>
+                                </div>
                             </div>
                             <div class="calc-row" style="margin-top: 1rem;">
                                 <div class="calc-field">
@@ -576,9 +588,9 @@
                             </div>
                         </div>
 
-                        <!-- 担当者B入力（メイン入力） -->
+                        <!-- データ入力 -->
                         <div class="calc-section calc-section-b">
-                            <h3><i class="fas fa-edit"></i> 担当者Bデータ入力</h3>
+                            <h3><i class="fas fa-edit"></i> データ入力</h3>
                             <div class="calc-table-wrapper">
                                 <table class="calc-table calc-table-b">
                                     <thead>
@@ -586,7 +598,7 @@
                                             <th>金額</th>
                                             <th>本数</th>
                                             <th>別担当</th>
-                                            <th>歩合</th>
+                                            <th>歩合（自動）</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -594,34 +606,40 @@
                                             <td class="price-cell">¥40,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="30000">
                                             <td class="price-cell">¥30,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="25000">
                                             <td class="price-cell">¥25,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="20000">
                                             <td class="price-cell">¥20,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                         <tr data-price="15000">
                                             <td class="price-cell">¥15,000</td>
                                             <td><input type="number" class="calc-b-quantity" min="0" value="0"></td>
                                             <td><input type="number" class="calc-b-other" min="0" value="0"></td>
-                                            <td><input type="number" class="calc-b-commission" min="0" value="0"></td>
+                                            <td><span class="calc-b-commission-display">0</span></td>
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="calc-totals-row" style="margin-top: 1rem; padding: 0.5rem; background: #f5f5f5; border-radius: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span><strong>合計本数:</strong> <span class="calc-total-quantity">0</span>本</span>
+                                    <span><strong>合計歩合:</strong> <span class="calc-total-commission">0</span></span>
+                                </div>
                             </div>
                             <div class="calc-row" style="margin-top: 1rem;">
                                 <div class="calc-field">
@@ -719,7 +737,7 @@
                 <!-- 集計設定 -->
                 <section id="calculator-settings-section" class="content-section">
                     <div class="section-header">
-                        <h2><i class="fas fa-sliders-h"></i> 集計設定（別担当・歩合）</h2>
+                        <h2><i class="fas fa-sliders-h"></i> 集計設定</h2>
                         <button type="button" class="primary-btn" onclick="saveCalcSettings()">
                             <i class="fas fa-save"></i> 設定を保存
                         </button>
@@ -728,137 +746,53 @@
                     <div class="settings-group">
                         <h3><i class="fas fa-info-circle"></i> 設定について</h3>
                         <p style="color: #666; margin-bottom: 1rem;">
-                            ここで設定した「別担当」「歩合」の値は保存され、集計ページで自動的に読み込まれます。<br>
-                            本数と経費は集計ページで毎回入力してください。
+                            ここで設定した「歩合」「AP設定」の値は1本あたりの単価として保存されます。<br>
+                            集計ページで本数を入力すると、歩合は自動計算されます。
                         </p>
                     </div>
 
                     <!-- 担当者1の設定 -->
                     <div class="settings-group">
                         <h3><i class="fas fa-user"></i> 担当者1の設定</h3>
-                        <div class="calc-settings-table-wrapper">
-                            <table class="calc-settings-table" data-settings-id="1">
-                                <thead>
-                                    <tr>
-                                        <th>金額</th>
-                                        <th>別担当</th>
-                                        <th>歩合</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr data-price="40000">
-                                        <td class="price-cell">¥40,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="30000">
-                                        <td class="price-cell">¥30,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="25000">
-                                        <td class="price-cell">¥25,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="20000">
-                                        <td class="price-cell">¥20,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="15000">
-                                        <td class="price-cell">¥15,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="calc-settings-simple">
+                            <div class="settings-row">
+                                <label>歩合（1本単価）</label>
+                                <input type="number" class="settings-commission-rate" data-settings-id="1" min="0" value="0" placeholder="例: 4000">
+                            </div>
+                            <div class="settings-row">
+                                <label>AP設定（1本単価）</label>
+                                <input type="number" class="settings-ap-rate" data-settings-id="1" min="0" value="0" placeholder="例: 6000">
+                            </div>
                         </div>
                     </div>
 
                     <!-- 担当者2の設定 -->
                     <div class="settings-group">
                         <h3><i class="fas fa-user"></i> 担当者2の設定</h3>
-                        <div class="calc-settings-table-wrapper">
-                            <table class="calc-settings-table" data-settings-id="2">
-                                <thead>
-                                    <tr>
-                                        <th>金額</th>
-                                        <th>別担当</th>
-                                        <th>歩合</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr data-price="40000">
-                                        <td class="price-cell">¥40,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="30000">
-                                        <td class="price-cell">¥30,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="25000">
-                                        <td class="price-cell">¥25,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="20000">
-                                        <td class="price-cell">¥20,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="15000">
-                                        <td class="price-cell">¥15,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="calc-settings-simple">
+                            <div class="settings-row">
+                                <label>歩合（1本単価）</label>
+                                <input type="number" class="settings-commission-rate" data-settings-id="2" min="0" value="0" placeholder="例: 4000">
+                            </div>
+                            <div class="settings-row">
+                                <label>AP設定（1本単価）</label>
+                                <input type="number" class="settings-ap-rate" data-settings-id="2" min="0" value="0" placeholder="例: 6000">
+                            </div>
                         </div>
                     </div>
 
                     <!-- 担当者3の設定 -->
                     <div class="settings-group">
                         <h3><i class="fas fa-user"></i> 担当者3の設定</h3>
-                        <div class="calc-settings-table-wrapper">
-                            <table class="calc-settings-table" data-settings-id="3">
-                                <thead>
-                                    <tr>
-                                        <th>金額</th>
-                                        <th>別担当</th>
-                                        <th>歩合</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr data-price="40000">
-                                        <td class="price-cell">¥40,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="30000">
-                                        <td class="price-cell">¥30,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="25000">
-                                        <td class="price-cell">¥25,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="20000">
-                                        <td class="price-cell">¥20,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                    <tr data-price="15000">
-                                        <td class="price-cell">¥15,000</td>
-                                        <td><input type="number" class="settings-other" min="0" value="0"></td>
-                                        <td><input type="number" class="settings-commission" min="0" value="0"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="calc-settings-simple">
+                            <div class="settings-row">
+                                <label>歩合（1本単価）</label>
+                                <input type="number" class="settings-commission-rate" data-settings-id="3" min="0" value="0" placeholder="例: 2000">
+                            </div>
+                            <div class="settings-row">
+                                <label>AP設定（1本単価）</label>
+                                <input type="number" class="settings-ap-rate" data-settings-id="3" min="0" value="0" placeholder="例: 6000">
+                            </div>
                         </div>
                     </div>
                 </section>
