@@ -492,7 +492,10 @@ function showSection(sectionName) {
 
     // ページタイトルを更新
     const titles = {
-        dashboard: 'ダッシュボード',
+        'dashboard-main': 'メインダッシュボード',
+        'dashboard-trade': 'トレード用ダッシュボード',
+        'dashboard-work': '業務用ダッシュボード',
+        'dashboard-analysis': '分析用ダッシュボード',
         templates: 'テンプレート管理',
         'calculator-dashboard': '集計ダッシュボード',
         'calculator-1': '集計 - 担当者1',

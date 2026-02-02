@@ -50,8 +50,22 @@
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li class="nav-item active" data-section="dashboard">
+                    <li class="nav-item has-submenu active" data-section="dashboard">
                         <a href="#"><i class="fas fa-home"></i> ダッシュボード</a>
+                        <ul class="submenu">
+                            <li class="submenu-item active" data-section="dashboard-main">
+                                <a href="#"><i class="fas fa-tachometer-alt"></i> メイン</a>
+                            </li>
+                            <li class="submenu-item" data-section="dashboard-trade">
+                                <a href="#"><i class="fas fa-chart-line"></i> トレード用</a>
+                            </li>
+                            <li class="submenu-item" data-section="dashboard-work">
+                                <a href="#"><i class="fas fa-briefcase"></i> 業務用</a>
+                            </li>
+                            <li class="submenu-item" data-section="dashboard-analysis">
+                                <a href="#"><i class="fas fa-chart-bar"></i> 分析用</a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item" data-section="templates">
                         <a href="#"><i class="fas fa-file-alt"></i> テンプレート管理</a>
@@ -138,8 +152,8 @@
 
             <!-- コンテンツエリア -->
             <div class="admin-content">
-                <!-- ダッシュボード -->
-                <section id="dashboard-section" class="content-section active">
+                <!-- メインダッシュボード -->
+                <section id="dashboard-main-section" class="content-section active">
                     <div class="dashboard-cards">
                         <div class="dashboard-card">
                             <div class="card-icon"><i class="fas fa-file-alt"></i></div>
@@ -185,6 +199,368 @@
                         </div>
                         <div id="recent-template-list" class="template-list">
                             <!-- 動的に生成 -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- トレード用ダッシュボード -->
+                <section id="dashboard-trade-section" class="content-section">
+                    <div class="trade-dashboard">
+                        <!-- 市場サマリーカード -->
+                        <div class="dashboard-cards trade-cards">
+                            <div class="dashboard-card trade-card profit">
+                                <div class="card-icon"><i class="fas fa-arrow-trend-up"></i></div>
+                                <div class="card-info">
+                                    <h3 id="trade-total-profit">+¥0</h3>
+                                    <p>総損益</p>
+                                </div>
+                            </div>
+                            <div class="dashboard-card trade-card">
+                                <div class="card-icon"><i class="fas fa-wallet"></i></div>
+                                <div class="card-info">
+                                    <h3 id="trade-total-assets">¥0</h3>
+                                    <p>総資産</p>
+                                </div>
+                            </div>
+                            <div class="dashboard-card trade-card">
+                                <div class="card-icon"><i class="fas fa-chart-pie"></i></div>
+                                <div class="card-info">
+                                    <h3 id="trade-positions">0</h3>
+                                    <p>保有銘柄数</p>
+                                </div>
+                            </div>
+                            <div class="dashboard-card trade-card">
+                                <div class="card-icon"><i class="fas fa-eye"></i></div>
+                                <div class="card-info">
+                                    <h3 id="trade-watchlist-count">0</h3>
+                                    <p>ウォッチリスト</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 市場指標 -->
+                        <div class="trade-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-globe"></i> 市場指標</h3>
+                            </div>
+                            <div class="market-indicators">
+                                <div class="indicator-card">
+                                    <div class="indicator-header">
+                                        <span class="indicator-flag">🇺🇸</span>
+                                        <span class="indicator-name">XAUUSD</span>
+                                    </div>
+                                    <div class="indicator-value">4,680.63</div>
+                                    <div class="indicator-change negative">-214.80 (-4.39%)</div>
+                                </div>
+                                <div class="indicator-card">
+                                    <div class="indicator-header">
+                                        <span class="indicator-flag">💵</span>
+                                        <span class="indicator-name">DXY</span>
+                                    </div>
+                                    <div class="indicator-value">97.54</div>
+                                    <div class="indicator-change positive">+0.398 (+0.41%)</div>
+                                </div>
+                                <div class="indicator-card">
+                                    <div class="indicator-header">
+                                        <span class="indicator-flag">🇺🇸</span>
+                                        <span class="indicator-name">US10Y</span>
+                                    </div>
+                                    <div class="indicator-value">4.275</div>
+                                    <div class="indicator-change positive">+0.036 (+0.85%)</div>
+                                </div>
+                                <div class="indicator-card">
+                                    <div class="indicator-header">
+                                        <span class="indicator-flag">📊</span>
+                                        <span class="indicator-name">VIX</span>
+                                    </div>
+                                    <div class="indicator-value">16.81</div>
+                                    <div class="indicator-change negative">-0.63 (-3.61%)</div>
+                                </div>
+                                <div class="indicator-card">
+                                    <div class="indicator-header">
+                                        <span class="indicator-flag">🇯🇵</span>
+                                        <span class="indicator-name">USDJPY</span>
+                                    </div>
+                                    <div class="indicator-value">155.61</div>
+                                    <div class="indicator-change positive">+0.832 (+0.54%)</div>
+                                </div>
+                                <div class="indicator-card">
+                                    <div class="indicator-header">
+                                        <span class="indicator-flag">🥇</span>
+                                        <span class="indicator-name">GC1!</span>
+                                    </div>
+                                    <div class="indicator-value">4,717.1</div>
+                                    <div class="indicator-change negative">-28.0 (-0.59%)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- クイックウォッチリスト -->
+                        <div class="trade-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-star"></i> ウォッチリスト</h3>
+                                <button class="chart-btn" onclick="showSection('asset-watchlist')">
+                                    <i class="fas fa-external-link-alt"></i> 詳細
+                                </button>
+                            </div>
+                            <div class="quick-watchlist">
+                                <table class="stock-table compact">
+                                    <thead>
+                                        <tr>
+                                            <th>銘柄</th>
+                                            <th>価格</th>
+                                            <th>変動</th>
+                                            <th>アラート</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="trade-watchlist-body">
+                                        <tr class="empty-row">
+                                            <td colspan="4">ウォッチリストに銘柄を追加してください</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 最近のトレード -->
+                        <div class="trade-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-history"></i> 最近のトレード</h3>
+                            </div>
+                            <div class="recent-trades">
+                                <div class="empty-state">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <p>トレード履歴がありません</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 業務用ダッシュボード -->
+                <section id="dashboard-work-section" class="content-section">
+                    <div class="work-dashboard">
+                        <!-- 業務サマリーカード -->
+                        <div class="dashboard-cards work-cards">
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-file-alt"></i></div>
+                                <div class="card-info">
+                                    <h3 id="work-template-count">0</h3>
+                                    <p>登録テンプレート</p>
+                                </div>
+                            </div>
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-copy"></i></div>
+                                <div class="card-info">
+                                    <h3 id="work-usage-count">0</h3>
+                                    <p>今月の使用回数</p>
+                                </div>
+                            </div>
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-users"></i></div>
+                                <div class="card-info">
+                                    <h3 id="work-staff-count">5</h3>
+                                    <p>担当者数</p>
+                                </div>
+                            </div>
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-yen-sign"></i></div>
+                                <div class="card-info">
+                                    <h3 id="work-total-amount">¥0</h3>
+                                    <p>今月の集計総額</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- タスク・ToDoリスト -->
+                        <div class="work-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-tasks"></i> タスク</h3>
+                                <button class="primary-btn" onclick="openAddTaskModal()">
+                                    <i class="fas fa-plus"></i> タスク追加
+                                </button>
+                            </div>
+                            <div class="task-list">
+                                <div class="task-item">
+                                    <input type="checkbox" id="task-1">
+                                    <label for="task-1">サンプルタスク</label>
+                                    <span class="task-date">期限なし</span>
+                                </div>
+                                <div class="empty-state" id="empty-tasks" style="display: none;">
+                                    <i class="fas fa-clipboard-check"></i>
+                                    <p>タスクがありません</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- よく使うテンプレート -->
+                        <div class="work-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-fire"></i> よく使うテンプレート</h3>
+                                <button class="chart-btn" onclick="showSection('templates')">
+                                    <i class="fas fa-external-link-alt"></i> 一覧
+                                </button>
+                            </div>
+                            <div id="frequent-templates" class="template-list compact">
+                                <div class="empty-state">
+                                    <i class="fas fa-file-alt"></i>
+                                    <p>テンプレートを使用すると、ここに表示されます</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 担当者別集計サマリー -->
+                        <div class="work-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-chart-bar"></i> 担当者別集計</h3>
+                                <button class="chart-btn" onclick="showSection('calculator-dashboard')">
+                                    <i class="fas fa-external-link-alt"></i> 詳細
+                                </button>
+                            </div>
+                            <div class="staff-summary">
+                                <div class="staff-summary-item">
+                                    <span class="staff-name">担当者1</span>
+                                    <span class="staff-amount">¥0</span>
+                                </div>
+                                <div class="staff-summary-item">
+                                    <span class="staff-name">担当者2</span>
+                                    <span class="staff-amount">¥0</span>
+                                </div>
+                                <div class="staff-summary-item">
+                                    <span class="staff-name">担当者3</span>
+                                    <span class="staff-amount">¥0</span>
+                                </div>
+                                <div class="staff-summary-item">
+                                    <span class="staff-name">担当者4</span>
+                                    <span class="staff-amount">¥0</span>
+                                </div>
+                                <div class="staff-summary-item">
+                                    <span class="staff-name">担当者5</span>
+                                    <span class="staff-amount">¥0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 分析用ダッシュボード -->
+                <section id="dashboard-analysis-section" class="content-section">
+                    <div class="analysis-dashboard">
+                        <!-- 分析サマリーカード -->
+                        <div class="dashboard-cards analysis-cards">
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-percentage"></i></div>
+                                <div class="card-info">
+                                    <h3 id="analysis-win-rate">0%</h3>
+                                    <p>勝率</p>
+                                </div>
+                            </div>
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-balance-scale"></i></div>
+                                <div class="card-info">
+                                    <h3 id="analysis-risk-reward">0:0</h3>
+                                    <p>リスクリワード比</p>
+                                </div>
+                            </div>
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+                                <div class="card-info">
+                                    <h3 id="analysis-avg-profit">¥0</h3>
+                                    <p>平均利益</p>
+                                </div>
+                            </div>
+                            <div class="dashboard-card">
+                                <div class="card-icon"><i class="fas fa-calendar-check"></i></div>
+                                <div class="card-info">
+                                    <h3 id="analysis-trade-count">0</h3>
+                                    <p>総トレード数</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 損益推移チャート -->
+                        <div class="analysis-section chart-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-chart-area"></i> 損益推移</h3>
+                                <div class="chart-controls">
+                                    <button class="chart-btn active" data-period="week">週</button>
+                                    <button class="chart-btn" data-period="month">月</button>
+                                    <button class="chart-btn" data-period="year">年</button>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="profit-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 資産配分チャート -->
+                        <div class="analysis-grid">
+                            <div class="analysis-section">
+                                <div class="section-header">
+                                    <h3><i class="fas fa-chart-pie"></i> 資産配分</h3>
+                                </div>
+                                <div class="chart-wrapper small">
+                                    <canvas id="allocation-chart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- 月別パフォーマンス -->
+                            <div class="analysis-section">
+                                <div class="section-header">
+                                    <h3><i class="fas fa-calendar-alt"></i> 月別パフォーマンス</h3>
+                                </div>
+                                <div class="monthly-performance">
+                                    <div class="month-item positive">
+                                        <span class="month-name">1月</span>
+                                        <span class="month-value">+5.2%</span>
+                                    </div>
+                                    <div class="month-item negative">
+                                        <span class="month-name">2月</span>
+                                        <span class="month-value">-2.1%</span>
+                                    </div>
+                                    <div class="month-item positive">
+                                        <span class="month-name">3月</span>
+                                        <span class="month-value">+8.7%</span>
+                                    </div>
+                                    <div class="month-item">
+                                        <span class="month-name">4月</span>
+                                        <span class="month-value">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- トレード統計 -->
+                        <div class="analysis-section">
+                            <div class="section-header">
+                                <h3><i class="fas fa-table"></i> トレード統計</h3>
+                            </div>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <span class="stat-label">最大利益</span>
+                                    <span class="stat-value positive">+¥0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">最大損失</span>
+                                    <span class="stat-value negative">-¥0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">平均保有期間</span>
+                                    <span class="stat-value">0日</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">最長連勝</span>
+                                    <span class="stat-value">0回</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">最長連敗</span>
+                                    <span class="stat-value">0回</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">プロフィットファクター</span>
+                                    <span class="stat-value">0.00</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
