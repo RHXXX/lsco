@@ -88,6 +88,9 @@
                     <li class="nav-item" data-section="settings">
                         <a href="#"><i class="fas fa-cog"></i> 設定</a>
                     </li>
+                    <li class="nav-item" data-section="profile">
+                        <a href="#"><i class="fas fa-id-card"></i> プロフィール</a>
+                    </li>
                     <!-- 資産管理（Owner限定） -->
                     <li class="nav-item has-submenu owner-only" data-section="asset-management" id="asset-management-menu" style="display: none;">
                         <a href="#"><i class="fas fa-chart-pie"></i> 資産管理</a>
@@ -1493,6 +1496,142 @@
                                 <i class="fas fa-upload"></i> データをインポート
                             </button>
                             <input type="file" id="import-file" accept=".json" style="display: none;">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- プロフィール -->
+                <section id="profile-section" class="content-section">
+                    <div class="profile-page">
+                        <!-- プロフィールカード -->
+                        <div class="profile-card profile-main-card">
+                            <div class="profile-header">
+                                <div class="profile-avatar">
+                                    <img src="images/profile.png" alt="Profile" id="profile-image">
+                                </div>
+                                <div class="profile-bio">
+                                    <p class="bio-text">ISFJ-T//FAPE//最後の恋人 //The future starts today, not tomorrow.</p>
+                                </div>
+                            </div>
+                            <div class="profile-interests">
+                                <span class="interests-label">Interests</span>
+                                <div class="interest-tags">
+                                    <span class="interest-tag"><i class="fas fa-chart-line"></i> Trading</span>
+                                    <span class="interest-tag"><i class="fas fa-film"></i> Film Making</span>
+                                    <span class="interest-tag"><i class="fas fa-plane"></i> Traveling</span>
+                                    <span class="interest-tag"><i class="fas fa-music"></i> Music</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 経歴セクション -->
+                        <div class="profile-grid">
+                            <!-- 左カラム -->
+                            <div class="profile-column">
+                                <!-- 職歴 -->
+                                <div class="profile-card">
+                                    <div class="experience-item">
+                                        <div class="experience-header">
+                                            <h3 class="experience-title">Investor</h3>
+                                            <span class="experience-period">2020 - now</span>
+                                        </div>
+                                        <p class="experience-subtitle">Private Investor</p>
+                                        <ul class="experience-list">
+                                            <li>個人資産運用・投資戦略の立案</li>
+                                            <li>国内外の株式・仮想通貨市場での取引</li>
+                                            <li>ポートフォリオ管理・リスクマネジメント</li>
+                                            <li>市場分析・トレンド予測</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- 使用ツール -->
+                                <div class="profile-card">
+                                    <div class="tools-section">
+                                        <span class="section-label">Trading Tools</span>
+                                        <div class="tools-icons">
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #00c853 0%, #009624 100%);">TV</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #2962ff 0%, #0039cb 100%);">MT</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #f57c00 0%, #e65100 100%);">BN</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);">BY</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 分析ツール -->
+                                <div class="profile-card">
+                                    <div class="tools-section">
+                                        <span class="section-label">Analysis Tools</span>
+                                        <div class="tools-icons">
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);">Py</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);">Ex</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 100%);">No</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 言語 -->
+                                <div class="profile-card">
+                                    <div class="tools-section">
+                                        <span class="section-label">Languages</span>
+                                        <div class="tools-icons">
+                                            <div class="tool-icon flag-icon">🇯🇵</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 右カラム -->
+                            <div class="profile-column">
+                                <!-- 学歴 -->
+                                <div class="profile-card">
+                                    <div class="education-item">
+                                        <div class="education-header">
+                                            <h3 class="education-title">Vocational School</h3>
+                                            <span class="education-period">卒業</span>
+                                        </div>
+                                        <p class="education-subtitle">専門学校</p>
+                                        <p class="education-detail">Japan</p>
+                                    </div>
+                                </div>
+
+                                <!-- ステータス -->
+                                <div class="profile-card">
+                                    <div class="status-section">
+                                        <div class="status-item">
+                                            <span class="status-label">Status</span>
+                                            <span class="status-value active">Active Trader</span>
+                                        </div>
+                                        <div class="status-item">
+                                            <span class="status-label">Focus</span>
+                                            <span class="status-value">Crypto & Stocks</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ポートフォリオリンク -->
+                        <div class="profile-card portfolio-links-card">
+                            <span class="section-label">Portfolio</span>
+                            <div class="portfolio-links">
+                                <a href="https://x.com/hrihorixxx" target="_blank" class="portfolio-link">
+                                    <i class="fab fa-x-twitter"></i> X (Twitter)
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 連絡先 -->
+                        <div class="profile-card contact-card">
+                            <span class="section-label">Details</span>
+                            <div class="contact-details">
+                                <a href="https://t.me/RHX8X8X" target="_blank" class="contact-item">
+                                    <i class="fab fa-telegram"></i> Telegram
+                                </a>
+                                <span class="contact-item">
+                                    <i class="fas fa-map-marker-alt"></i> Japan
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </section>

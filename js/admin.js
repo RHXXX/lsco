@@ -505,7 +505,8 @@ function showSection(sectionName) {
         settings: '設定',
         'asset-portfolio': 'ポートフォリオ',
         'asset-watchlist': 'ウォッチリスト',
-        'asset-candidates': '候補銘柄'
+        'asset-candidates': '候補銘柄',
+        'profile': 'プロフィール'
     };
 
     // 資産管理ページの初期化
