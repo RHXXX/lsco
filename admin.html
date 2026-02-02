@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- ログイン画面 -->
@@ -86,6 +87,21 @@
                     </li>
                     <li class="nav-item" data-section="settings">
                         <a href="#"><i class="fas fa-cog"></i> 設定</a>
+                    </li>
+                    <!-- 資産管理（Owner限定） -->
+                    <li class="nav-item has-submenu owner-only" data-section="asset-management" id="asset-management-menu" style="display: none;">
+                        <a href="#"><i class="fas fa-chart-pie"></i> 資産管理</a>
+                        <ul class="submenu">
+                            <li class="submenu-item" data-section="asset-portfolio">
+                                <a href="#"><i class="fas fa-briefcase"></i> ポートフォリオ</a>
+                            </li>
+                            <li class="submenu-item" data-section="asset-watchlist">
+                                <a href="#"><i class="fas fa-eye"></i> ウォッチリスト</a>
+                            </li>
+                            <li class="submenu-item" data-section="asset-candidates">
+                                <a href="#"><i class="fas fa-star"></i> 候補銘柄</a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </nav>
@@ -1164,6 +1180,273 @@
                     </div>
                 </section>
 
+                <!-- ============================================
+                     資産管理セクション（Owner限定）
+                     ============================================ -->
+
+                <!-- ポートフォリオ -->
+                <section id="asset-portfolio-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-briefcase"></i> ポートフォリオ</h2>
+                        <button class="primary-btn" onclick="openAddAssetModal()">
+                            <i class="fas fa-plus"></i> 銘柄追加
+                        </button>
+                    </div>
+
+                    <div class="asset-dashboard">
+                        <!-- サマリーカード -->
+                        <div class="asset-summary-cards">
+                            <div class="asset-summary-card total">
+                                <div class="asset-card-header">
+                                    <span class="label"><i class="fas fa-wallet"></i> 総資産</span>
+                                </div>
+                                <div class="asset-card-value" id="total-assets">¥0</div>
+                                <div class="asset-card-change positive" id="total-change">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+0%</span>
+                                    <span class="text-muted">前日比</span>
+                                </div>
+                            </div>
+                            <div class="asset-summary-card investment">
+                                <div class="asset-card-header">
+                                    <span class="label"><i class="fas fa-coins"></i> 投資額</span>
+                                </div>
+                                <div class="asset-card-value" id="total-investment">¥0</div>
+                                <div class="asset-card-change" id="investment-info">
+                                    <span>投入資金総額</span>
+                                </div>
+                            </div>
+                            <div class="asset-summary-card profit">
+                                <div class="asset-card-header">
+                                    <span class="label"><i class="fas fa-chart-line"></i> 損益</span>
+                                </div>
+                                <div class="asset-card-value" id="total-profit">¥0</div>
+                                <div class="asset-card-change positive" id="profit-rate">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+0%</span>
+                                    <span class="text-muted">損益率</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- チャートとテーブル -->
+                        <div class="asset-grid">
+                            <!-- 資産推移チャート -->
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <h3><i class="fas fa-chart-area"></i> 資産推移</h3>
+                                    <div class="chart-controls">
+                                        <button class="chart-btn active" data-period="1M">1M</button>
+                                        <button class="chart-btn" data-period="3M">3M</button>
+                                        <button class="chart-btn" data-period="6M">6M</button>
+                                        <button class="chart-btn" data-period="1Y">1Y</button>
+                                        <button class="chart-btn" data-period="ALL">ALL</button>
+                                    </div>
+                                </div>
+                                <div class="chart-wrapper">
+                                    <canvas id="portfolio-chart"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- 分配チャート -->
+                            <div class="chart-container">
+                                <div class="chart-header">
+                                    <h3><i class="fas fa-chart-pie"></i> 資産分配</h3>
+                                </div>
+                                <div class="distribution-chart">
+                                    <div class="chart-wrapper" style="height: 200px;">
+                                        <canvas id="distribution-chart"></canvas>
+                                    </div>
+                                    <div class="distribution-legend" id="distribution-legend">
+                                        <!-- 動的に生成 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 保有銘柄リスト -->
+                        <div class="stock-list">
+                            <div class="stock-list-header">
+                                <h3><i class="fas fa-list"></i> 保有銘柄</h3>
+                                <button class="secondary-btn" onclick="refreshPortfolio()">
+                                    <i class="fas fa-sync-alt"></i> 更新
+                                </button>
+                            </div>
+                            <div class="stock-table-wrapper">
+                                <table class="stock-table">
+                                    <thead>
+                                        <tr>
+                                            <th>銘柄</th>
+                                            <th>保有数量</th>
+                                            <th>取得単価</th>
+                                            <th>現在価格</th>
+                                            <th>評価額</th>
+                                            <th>損益</th>
+                                            <th>損益率</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="portfolio-table-body">
+                                        <!-- 動的に生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="empty-portfolio" id="empty-portfolio" style="display: none;">
+                                <i class="fas fa-inbox"></i>
+                                <h3>保有銘柄がありません</h3>
+                                <p>「銘柄追加」ボタンから銘柄を追加してください</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ウォッチリスト -->
+                <section id="asset-watchlist-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-eye"></i> ウォッチリスト</h2>
+                        <button class="primary-btn" onclick="openAddWatchlistModal()">
+                            <i class="fas fa-plus"></i> 銘柄追加
+                        </button>
+                    </div>
+
+                    <div class="asset-dashboard">
+                        <!-- ウォッチリスト銘柄 -->
+                        <div class="stock-list">
+                            <div class="stock-list-header">
+                                <h3><i class="fas fa-binoculars"></i> 監視中の銘柄</h3>
+                                <div class="chart-controls">
+                                    <select id="watchlist-filter" class="chart-btn" style="min-width: 120px;">
+                                        <option value="all">すべて</option>
+                                        <option value="stock">株式</option>
+                                        <option value="crypto">仮想通貨</option>
+                                        <option value="fund">投資信託</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="stock-table-wrapper">
+                                <table class="stock-table">
+                                    <thead>
+                                        <tr>
+                                            <th>銘柄</th>
+                                            <th>現在価格</th>
+                                            <th>前日比</th>
+                                            <th>52週高値</th>
+                                            <th>52週安値</th>
+                                            <th>メモ</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="watchlist-table-body">
+                                        <!-- 動的に生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="empty-portfolio" id="empty-watchlist" style="display: none;">
+                                <i class="fas fa-binoculars"></i>
+                                <h3>ウォッチリストが空です</h3>
+                                <p>「銘柄追加」ボタンから監視したい銘柄を追加してください</p>
+                            </div>
+                        </div>
+
+                        <!-- 価格アラート -->
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3><i class="fas fa-bell"></i> 価格アラート</h3>
+                                <button class="secondary-btn" onclick="openAddAlertModal()">
+                                    <i class="fas fa-plus"></i> アラート追加
+                                </button>
+                            </div>
+                            <div id="alerts-list">
+                                <!-- 動的に生成 -->
+                            </div>
+                            <div class="empty-portfolio" id="empty-alerts" style="display: none; padding: 2rem;">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>設定されたアラートはありません</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 候補銘柄 -->
+                <section id="asset-candidates-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-star"></i> 候補銘柄</h2>
+                        <button class="primary-btn" onclick="openAddCandidateModal()">
+                            <i class="fas fa-plus"></i> 候補追加
+                        </button>
+                    </div>
+
+                    <div class="asset-dashboard">
+                        <!-- フィルターと並び替え -->
+                        <div class="template-filters">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="candidate-search" placeholder="銘柄を検索...">
+                            </div>
+                            <select id="candidate-category" class="chart-btn" style="min-width: 150px; padding: 0.75rem 1rem;">
+                                <option value="">すべてのカテゴリー</option>
+                                <option value="growth">成長株</option>
+                                <option value="value">バリュー株</option>
+                                <option value="dividend">高配当株</option>
+                                <option value="tech">テクノロジー</option>
+                                <option value="healthcare">ヘルスケア</option>
+                                <option value="finance">金融</option>
+                                <option value="other">その他</option>
+                            </select>
+                            <select id="candidate-priority" class="chart-btn" style="min-width: 120px; padding: 0.75rem 1rem;">
+                                <option value="">優先度</option>
+                                <option value="high">高</option>
+                                <option value="medium">中</option>
+                                <option value="low">低</option>
+                            </select>
+                        </div>
+
+                        <!-- 候補銘柄リスト -->
+                        <div class="stock-list">
+                            <div class="stock-list-header">
+                                <h3><i class="fas fa-clipboard-list"></i> 投資検討リスト</h3>
+                            </div>
+                            <div class="stock-table-wrapper">
+                                <table class="stock-table">
+                                    <thead>
+                                        <tr>
+                                            <th>銘柄</th>
+                                            <th>カテゴリー</th>
+                                            <th>優先度</th>
+                                            <th>目標価格</th>
+                                            <th>現在価格</th>
+                                            <th>メモ</th>
+                                            <th>追加日</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="candidates-table-body">
+                                        <!-- 動的に生成 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="empty-portfolio" id="empty-candidates" style="display: none;">
+                                <i class="fas fa-star"></i>
+                                <h3>候補銘柄がありません</h3>
+                                <p>「候補追加」ボタンから投資検討中の銘柄を追加してください</p>
+                            </div>
+                        </div>
+
+                        <!-- 投資メモ -->
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3><i class="fas fa-sticky-note"></i> 投資メモ・分析</h3>
+                            </div>
+                            <div class="asset-input-form">
+                                <textarea id="investment-notes" rows="6" placeholder="投資に関するメモや分析を記録..." style="width: 100%; padding: 1rem; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); resize: vertical;"></textarea>
+                                <button class="primary-btn" onclick="saveInvestmentNotes()" style="align-self: flex-end;">
+                                    <i class="fas fa-save"></i> メモを保存
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- 設定 -->
                 <section id="settings-section" class="content-section">
                     <h2><i class="fas fa-cog"></i> 設定</h2>
@@ -1293,6 +1576,193 @@
             <div id="copy-success" class="copy-success" style="display: none;">
                 <i class="fas fa-check"></i> コピーしました！
             </div>
+        </div>
+    </div>
+
+    <!-- 資産追加モーダル -->
+    <div id="asset-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="asset-modal-title"><i class="fas fa-plus"></i> 銘柄追加</h2>
+                <button class="modal-close" onclick="closeAssetModal()">&times;</button>
+            </div>
+            <form id="asset-form" class="template-preview" style="padding: 1.5rem;">
+                <input type="hidden" id="asset-id">
+                <div class="asset-input-form">
+                    <div class="asset-input-row">
+                        <div class="asset-input-group">
+                            <label for="asset-symbol">銘柄コード/シンボル <span style="color: var(--danger);">*</span></label>
+                            <input type="text" id="asset-symbol" placeholder="例: 7203, AAPL, BTC" required>
+                        </div>
+                        <div class="asset-input-group">
+                            <label for="asset-name">銘柄名 <span style="color: var(--danger);">*</span></label>
+                            <input type="text" id="asset-name" placeholder="例: トヨタ自動車" required>
+                        </div>
+                    </div>
+                    <div class="asset-input-row">
+                        <div class="asset-input-group">
+                            <label for="asset-type">種別</label>
+                            <select id="asset-type">
+                                <option value="stock">株式</option>
+                                <option value="crypto">仮想通貨</option>
+                                <option value="fund">投資信託</option>
+                                <option value="bond">債券</option>
+                                <option value="other">その他</option>
+                            </select>
+                        </div>
+                        <div class="asset-input-group">
+                            <label for="asset-market">市場</label>
+                            <select id="asset-market">
+                                <option value="tse">東証</option>
+                                <option value="nyse">NYSE</option>
+                                <option value="nasdaq">NASDAQ</option>
+                                <option value="crypto">暗号資産</option>
+                                <option value="other">その他</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="asset-input-row">
+                        <div class="asset-input-group">
+                            <label for="asset-quantity">保有数量 <span style="color: var(--danger);">*</span></label>
+                            <input type="number" id="asset-quantity" placeholder="100" min="0" step="any" required>
+                        </div>
+                        <div class="asset-input-group">
+                            <label for="asset-avg-price">平均取得単価 <span style="color: var(--danger);">*</span></label>
+                            <input type="number" id="asset-avg-price" placeholder="1500" min="0" step="any" required>
+                        </div>
+                    </div>
+                    <div class="asset-input-row">
+                        <div class="asset-input-group">
+                            <label for="asset-current-price">現在価格</label>
+                            <input type="number" id="asset-current-price" placeholder="1650" min="0" step="any">
+                        </div>
+                        <div class="asset-input-group">
+                            <label for="asset-purchase-date">購入日</label>
+                            <input type="date" id="asset-purchase-date">
+                        </div>
+                    </div>
+                    <div class="asset-input-group">
+                        <label for="asset-memo">メモ</label>
+                        <textarea id="asset-memo" rows="3" placeholder="投資理由やメモを記入..." style="width: 100%; padding: 0.75rem; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary);"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-btn" onclick="closeAssetModal()">キャンセル</button>
+                    <button type="submit" class="primary-btn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ウォッチリスト追加モーダル -->
+    <div id="watchlist-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-eye"></i> ウォッチリストに追加</h2>
+                <button class="modal-close" onclick="closeWatchlistModal()">&times;</button>
+            </div>
+            <form id="watchlist-form" class="template-preview" style="padding: 1.5rem;">
+                <input type="hidden" id="watchlist-id">
+                <div class="asset-input-form">
+                    <div class="asset-input-row">
+                        <div class="asset-input-group">
+                            <label for="watchlist-symbol">銘柄コード/シンボル <span style="color: var(--danger);">*</span></label>
+                            <input type="text" id="watchlist-symbol" placeholder="例: 7203, AAPL, BTC" required>
+                        </div>
+                        <div class="asset-input-group">
+                            <label for="watchlist-name">銘柄名 <span style="color: var(--danger);">*</span></label>
+                            <input type="text" id="watchlist-name" placeholder="例: トヨタ自動車" required>
+                        </div>
+                    </div>
+                    <div class="asset-input-row">
+                        <div class="asset-input-group">
+                            <label for="watchlist-type">種別</label>
+                            <select id="watchlist-type">
+                                <option value="stock">株式</option>
+                                <option value="crypto">仮想通貨</option>
+                                <option value="fund">投資信託</option>
+                            </select>
+                        </div>
+                        <div class="asset-input-group">
+                            <label for="watchlist-target-price">目標購入価格</label>
+                            <input type="number" id="watchlist-target-price" placeholder="1400" min="0" step="any">
+                        </div>
+                    </div>
+                    <div class="asset-input-group">
+                        <label for="watchlist-memo">監視理由・メモ</label>
+                        <textarea id="watchlist-memo" rows="3" placeholder="なぜこの銘柄を監視しているか..." style="width: 100%; padding: 0.75rem; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary);"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-btn" onclick="closeWatchlistModal()">キャンセル</button>
+                    <button type="submit" class="primary-btn">追加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 候補銘柄追加モーダル -->
+    <div id="candidate-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-star"></i> 候補銘柄追加</h2>
+                <button class="modal-close" onclick="closeCandidateModal()">&times;</button>
+            </div>
+            <form id="candidate-form" class="template-preview" style="padding: 1.5rem;">
+                <input type="hidden" id="candidate-id">
+                <div class="asset-input-form">
+                    <div class="asset-input-row">
+                        <div class="asset-input-group">
+                            <label for="candidate-symbol">銘柄コード/シンボル <span style="color: var(--danger);">*</span></label>
+                            <input type="text" id="candidate-symbol" placeholder="例: 7203, AAPL" required>
+                        </div>
+                        <div class="asset-input-group">
+                            <label for="candidate-name">銘柄名 <span style="color: var(--danger);">*</span></label>
+                            <input type="text" id="candidate-name" placeholder="例: トヨタ自動車" required>
+                        </div>
+                    </div>
+                    <div class="asset-input-row">
+                        <div class="asset-input-group">
+                            <label for="candidate-category-select">カテゴリー</label>
+                            <select id="candidate-category-select">
+                                <option value="growth">成長株</option>
+                                <option value="value">バリュー株</option>
+                                <option value="dividend">高配当株</option>
+                                <option value="tech">テクノロジー</option>
+                                <option value="healthcare">ヘルスケア</option>
+                                <option value="finance">金融</option>
+                                <option value="other">その他</option>
+                            </select>
+                        </div>
+                        <div class="asset-input-group">
+                            <label for="candidate-priority-select">優先度</label>
+                            <select id="candidate-priority-select">
+                                <option value="high">高</option>
+                                <option value="medium">中</option>
+                                <option value="low">低</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="asset-input-row">
+                        <div class="asset-input-group">
+                            <label for="candidate-target">目標購入価格</label>
+                            <input type="number" id="candidate-target" placeholder="1400" min="0" step="any">
+                        </div>
+                        <div class="asset-input-group">
+                            <label for="candidate-current">現在価格</label>
+                            <input type="number" id="candidate-current" placeholder="1500" min="0" step="any">
+                        </div>
+                    </div>
+                    <div class="asset-input-group">
+                        <label for="candidate-memo">投資理由・分析メモ</label>
+                        <textarea id="candidate-memo" rows="4" placeholder="なぜこの銘柄に投資を検討しているか..." style="width: 100%; padding: 0.75rem; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary);"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-btn" onclick="closeCandidateModal()">キャンセル</button>
+                    <button type="submit" class="primary-btn">追加</button>
+                </div>
+            </form>
         </div>
     </div>
 

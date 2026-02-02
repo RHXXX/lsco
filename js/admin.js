@@ -42,7 +42,11 @@ const STORAGE_KEYS = {
     CATEGORIES: 'lsco_categories',
     SESSION: 'lsco_admin_session',
     CALC_SETTINGS: 'lsco_calc_settings',
-    USER_ROLE: 'lsco_user_role'
+    USER_ROLE: 'lsco_user_role',
+    PORTFOLIO: 'lsco_portfolio',
+    WATCHLIST: 'lsco_watchlist',
+    CANDIDATES: 'lsco_candidates',
+    INVESTMENT_NOTES: 'lsco_investment_notes'
 };
 
 // デフォルトカテゴリー
@@ -299,6 +303,16 @@ function updateUIForRole(role) {
     } else {
         enableSettingsForAdminAndAbove();
     }
+
+    // Owner限定: 資産管理メニューを表示
+    const assetManagementMenu = document.getElementById('asset-management-menu');
+    if (assetManagementMenu) {
+        if (role.level === USER_ROLES.OWNER.level) {
+            assetManagementMenu.style.display = 'block';
+        } else {
+            assetManagementMenu.style.display = 'none';
+        }
+    }
 }
 
 // Admin未満の権限で設定変更を無効化
@@ -484,10 +498,20 @@ function showSection(sectionName) {
         'calculator-1': '集計 - 担当者1',
         'calculator-2': '集計 - 担当者2',
         'calculator-3': '集計 - 担当者3',
+        'calculator-4': '集計 - 担当者4',
+        'calculator-5': '集計 - 担当者5',
         'calculator-settings': '集計設定',
         calendar: 'カレンダー',
-        settings: '設定'
+        settings: '設定',
+        'asset-portfolio': 'ポートフォリオ',
+        'asset-watchlist': 'ウォッチリスト',
+        'asset-candidates': '候補銘柄'
     };
+
+    // 資産管理ページの初期化
+    if (sectionName.startsWith('asset-')) {
+        initAssetManagementPage(sectionName);
+    }
 
     // 集計ページの初期化
     if (sectionName.startsWith('calculator-')) {
@@ -1574,3 +1598,860 @@ window.copyCalculatorResultB = copyCalculatorResultB;
 window.copyAllCalculatorResults = copyAllCalculatorResults;
 window.saveCalcSettings = saveCalcSettings;
 window.loadCalcSettings = loadCalcSettings;
+
+// ============================================
+// 資産管理機能（Owner限定）
+// ============================================
+
+let portfolioChart = null;
+let distributionChart = null;
+
+// 資産管理ページの初期化
+function initAssetManagementPage(sectionName) {
+    if (sectionName === 'asset-portfolio') {
+        loadPortfolio();
+        initPortfolioCharts();
+    } else if (sectionName === 'asset-watchlist') {
+        loadWatchlist();
+    } else if (sectionName === 'asset-candidates') {
+        loadCandidates();
+        loadInvestmentNotes();
+    }
+}
+
+// ============================================
+// ポートフォリオ機能
+// ============================================
+
+function getPortfolio() {
+    const data = localStorage.getItem(STORAGE_KEYS.PORTFOLIO);
+    return data ? JSON.parse(data) : [];
+}
+
+function savePortfolio(portfolio) {
+    localStorage.setItem(STORAGE_KEYS.PORTFOLIO, JSON.stringify(portfolio));
+}
+
+function loadPortfolio() {
+    const portfolio = getPortfolio();
+    renderPortfolioTable(portfolio);
+    updatePortfolioSummary(portfolio);
+    updateDistributionChart(portfolio);
+}
+
+function renderPortfolioTable(portfolio) {
+    const tbody = document.getElementById('portfolio-table-body');
+    const emptyState = document.getElementById('empty-portfolio');
+
+    if (!tbody) return;
+
+    if (portfolio.length === 0) {
+        tbody.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+
+    if (emptyState) emptyState.style.display = 'none';
+
+    tbody.innerHTML = portfolio.map(asset => {
+        const currentPrice = asset.currentPrice || asset.avgPrice;
+        const marketValue = asset.quantity * currentPrice;
+        const totalCost = asset.quantity * asset.avgPrice;
+        const profit = marketValue - totalCost;
+        const profitRate = totalCost > 0 ? ((profit / totalCost) * 100).toFixed(2) : 0;
+        const isPositive = profit >= 0;
+        const bgColor = getAssetColor(asset.type);
+
+        return `
+            <tr>
+                <td>
+                    <div class="stock-name">
+                        <div class="stock-icon" style="background: ${bgColor};">
+                            ${asset.symbol.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div class="stock-name-text">
+                            <span class="symbol">${escapeHtml(asset.symbol)}</span>
+                            <span class="name">${escapeHtml(asset.name)}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>${formatNumber(asset.quantity)}</td>
+                <td>¥${formatNumber(asset.avgPrice)}</td>
+                <td>¥${formatNumber(currentPrice)}</td>
+                <td>¥${formatNumber(marketValue)}</td>
+                <td class="stock-change ${isPositive ? 'positive' : 'negative'}">
+                    ${isPositive ? '+' : ''}¥${formatNumber(profit)}
+                </td>
+                <td class="stock-change ${isPositive ? 'positive' : 'negative'}">
+                    <i class="fas fa-arrow-${isPositive ? 'up' : 'down'}"></i>
+                    ${isPositive ? '+' : ''}${profitRate}%
+                </td>
+                <td>
+                    <div class="stock-actions">
+                        <button class="stock-action-btn buy" onclick="openEditAssetModal('${asset.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="stock-action-btn remove" onclick="deleteAsset('${asset.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function updatePortfolioSummary(portfolio) {
+    let totalAssets = 0;
+    let totalInvestment = 0;
+
+    portfolio.forEach(asset => {
+        const currentPrice = asset.currentPrice || asset.avgPrice;
+        totalAssets += asset.quantity * currentPrice;
+        totalInvestment += asset.quantity * asset.avgPrice;
+    });
+
+    const totalProfit = totalAssets - totalInvestment;
+    const profitRate = totalInvestment > 0 ? ((totalProfit / totalInvestment) * 100).toFixed(2) : 0;
+    const isPositive = totalProfit >= 0;
+
+    const totalAssetsEl = document.getElementById('total-assets');
+    const totalInvestmentEl = document.getElementById('total-investment');
+    const totalProfitEl = document.getElementById('total-profit');
+    const profitRateEl = document.getElementById('profit-rate');
+
+    if (totalAssetsEl) totalAssetsEl.textContent = `¥${formatNumber(totalAssets)}`;
+    if (totalInvestmentEl) totalInvestmentEl.textContent = `¥${formatNumber(totalInvestment)}`;
+    if (totalProfitEl) totalProfitEl.textContent = `${isPositive ? '+' : ''}¥${formatNumber(totalProfit)}`;
+
+    if (profitRateEl) {
+        profitRateEl.className = `asset-card-change ${isPositive ? 'positive' : 'negative'}`;
+        profitRateEl.innerHTML = `
+            <i class="fas fa-arrow-${isPositive ? 'up' : 'down'}"></i>
+            <span>${isPositive ? '+' : ''}${profitRate}%</span>
+            <span class="text-muted">損益率</span>
+        `;
+    }
+}
+
+function initPortfolioCharts() {
+    initPortfolioLineChart();
+    const portfolio = getPortfolio();
+    updateDistributionChart(portfolio);
+}
+
+function initPortfolioLineChart() {
+    const ctx = document.getElementById('portfolio-chart');
+    if (!ctx) return;
+
+    if (portfolioChart) {
+        portfolioChart.destroy();
+    }
+
+    // サンプルデータ（実際のアプリでは過去のデータを使用）
+    const labels = generateDateLabels(30);
+    const portfolio = getPortfolio();
+    const currentValue = portfolio.reduce((sum, asset) => {
+        return sum + (asset.quantity * (asset.currentPrice || asset.avgPrice));
+    }, 0);
+
+    // シミュレートされた過去データ
+    const data = generateHistoricalData(currentValue, 30);
+
+    portfolioChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '資産総額',
+                data: data,
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#6366f1',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#1e293b',
+                    titleColor: '#fff',
+                    bodyColor: '#94a3b8',
+                    borderColor: '#334155',
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function(context) {
+                            return `¥${formatNumber(context.raw)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#64748b',
+                        maxTicksLimit: 6
+                    }
+                },
+                y: {
+                    grid: {
+                        color: '#1e293b'
+                    },
+                    ticks: {
+                        color: '#64748b',
+                        callback: function(value) {
+                            return '¥' + formatNumber(value);
+                        }
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            }
+        }
+    });
+}
+
+function updateDistributionChart(portfolio) {
+    const ctx = document.getElementById('distribution-chart');
+    if (!ctx) return;
+
+    if (distributionChart) {
+        distributionChart.destroy();
+    }
+
+    // 資産タイプ別に集計
+    const distribution = {};
+    portfolio.forEach(asset => {
+        const type = asset.type || 'other';
+        const value = asset.quantity * (asset.currentPrice || asset.avgPrice);
+        distribution[type] = (distribution[type] || 0) + value;
+    });
+
+    const typeLabels = {
+        stock: '株式',
+        crypto: '仮想通貨',
+        fund: '投資信託',
+        bond: '債券',
+        other: 'その他'
+    };
+
+    const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#14b8a6', '#f59e0b'];
+    const labels = Object.keys(distribution).map(key => typeLabels[key] || key);
+    const data = Object.values(distribution);
+    const total = data.reduce((sum, val) => sum + val, 0);
+
+    // 凡例を更新
+    const legendEl = document.getElementById('distribution-legend');
+    if (legendEl) {
+        legendEl.innerHTML = Object.keys(distribution).map((key, index) => {
+            const percentage = total > 0 ? ((distribution[key] / total) * 100).toFixed(1) : 0;
+            return `
+                <div class="legend-item">
+                    <div class="legend-color" style="background: ${colors[index]}"></div>
+                    <span class="legend-label">${typeLabels[key] || key}</span>
+                    <span class="legend-value">${percentage}%</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    if (data.length === 0) return;
+
+    distributionChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0, data.length),
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleColor: '#fff',
+                    bodyColor: '#94a3b8',
+                    callbacks: {
+                        label: function(context) {
+                            return `¥${formatNumber(context.raw)}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function openAddAssetModal() {
+    document.getElementById('asset-modal-title').innerHTML = '<i class="fas fa-plus"></i> 銘柄追加';
+    document.getElementById('asset-form').reset();
+    document.getElementById('asset-id').value = '';
+    document.getElementById('asset-purchase-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('asset-modal').classList.add('active');
+}
+
+function openEditAssetModal(id) {
+    const portfolio = getPortfolio();
+    const asset = portfolio.find(a => a.id === id);
+
+    if (!asset) {
+        showNotification('銘柄が見つかりません', 'error');
+        return;
+    }
+
+    document.getElementById('asset-modal-title').innerHTML = '<i class="fas fa-edit"></i> 銘柄編集';
+    document.getElementById('asset-id').value = asset.id;
+    document.getElementById('asset-symbol').value = asset.symbol;
+    document.getElementById('asset-name').value = asset.name;
+    document.getElementById('asset-type').value = asset.type || 'stock';
+    document.getElementById('asset-market').value = asset.market || 'tse';
+    document.getElementById('asset-quantity').value = asset.quantity;
+    document.getElementById('asset-avg-price').value = asset.avgPrice;
+    document.getElementById('asset-current-price').value = asset.currentPrice || '';
+    document.getElementById('asset-purchase-date').value = asset.purchaseDate || '';
+    document.getElementById('asset-memo').value = asset.memo || '';
+
+    document.getElementById('asset-modal').classList.add('active');
+}
+
+function closeAssetModal() {
+    document.getElementById('asset-modal').classList.remove('active');
+}
+
+function deleteAsset(id) {
+    if (!confirm('この銘柄を削除しますか？')) return;
+
+    let portfolio = getPortfolio();
+    portfolio = portfolio.filter(a => a.id !== id);
+    savePortfolio(portfolio);
+    loadPortfolio();
+    showNotification('銘柄を削除しました', 'success');
+}
+
+function refreshPortfolio() {
+    loadPortfolio();
+    initPortfolioCharts();
+    showNotification('ポートフォリオを更新しました', 'info');
+}
+
+// ============================================
+// ウォッチリスト機能
+// ============================================
+
+function getWatchlist() {
+    const data = localStorage.getItem(STORAGE_KEYS.WATCHLIST);
+    return data ? JSON.parse(data) : [];
+}
+
+function saveWatchlistData(watchlist) {
+    localStorage.setItem(STORAGE_KEYS.WATCHLIST, JSON.stringify(watchlist));
+}
+
+function loadWatchlist() {
+    const watchlist = getWatchlist();
+    renderWatchlistTable(watchlist);
+}
+
+function renderWatchlistTable(watchlist) {
+    const tbody = document.getElementById('watchlist-table-body');
+    const emptyState = document.getElementById('empty-watchlist');
+
+    if (!tbody) return;
+
+    if (watchlist.length === 0) {
+        tbody.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+
+    if (emptyState) emptyState.style.display = 'none';
+
+    tbody.innerHTML = watchlist.map(item => {
+        const bgColor = getAssetColor(item.type);
+        const change = item.change || 0;
+        const isPositive = change >= 0;
+
+        return `
+            <tr>
+                <td>
+                    <div class="stock-name">
+                        <div class="stock-icon" style="background: ${bgColor};">
+                            ${item.symbol.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div class="stock-name-text">
+                            <span class="symbol">${escapeHtml(item.symbol)}</span>
+                            <span class="name">${escapeHtml(item.name)}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>¥${formatNumber(item.currentPrice || 0)}</td>
+                <td class="stock-change ${isPositive ? 'positive' : 'negative'}">
+                    <i class="fas fa-arrow-${isPositive ? 'up' : 'down'}"></i>
+                    ${isPositive ? '+' : ''}${change}%
+                </td>
+                <td>¥${formatNumber(item.high52 || '-')}</td>
+                <td>¥${formatNumber(item.low52 || '-')}</td>
+                <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${escapeHtml(item.memo || '-')}
+                </td>
+                <td>
+                    <div class="stock-actions">
+                        <button class="stock-action-btn buy" onclick="addWatchlistToPortfolio('${item.id}')" title="ポートフォリオに追加">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="stock-action-btn remove" onclick="deleteWatchlistItem('${item.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function openAddWatchlistModal() {
+    document.getElementById('watchlist-form').reset();
+    document.getElementById('watchlist-id').value = '';
+    document.getElementById('watchlist-modal').classList.add('active');
+}
+
+function closeWatchlistModal() {
+    document.getElementById('watchlist-modal').classList.remove('active');
+}
+
+function deleteWatchlistItem(id) {
+    if (!confirm('この銘柄をウォッチリストから削除しますか？')) return;
+
+    let watchlist = getWatchlist();
+    watchlist = watchlist.filter(w => w.id !== id);
+    saveWatchlistData(watchlist);
+    loadWatchlist();
+    showNotification('ウォッチリストから削除しました', 'success');
+}
+
+function addWatchlistToPortfolio(id) {
+    const watchlist = getWatchlist();
+    const item = watchlist.find(w => w.id === id);
+
+    if (!item) return;
+
+    // ポートフォリオ追加モーダルを開き、情報をプリフィル
+    document.getElementById('asset-modal-title').innerHTML = '<i class="fas fa-plus"></i> 銘柄追加';
+    document.getElementById('asset-form').reset();
+    document.getElementById('asset-id').value = '';
+    document.getElementById('asset-symbol').value = item.symbol;
+    document.getElementById('asset-name').value = item.name;
+    document.getElementById('asset-type').value = item.type || 'stock';
+    document.getElementById('asset-current-price').value = item.currentPrice || '';
+    document.getElementById('asset-purchase-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('asset-modal').classList.add('active');
+}
+
+// ============================================
+// 候補銘柄機能
+// ============================================
+
+function getCandidates() {
+    const data = localStorage.getItem(STORAGE_KEYS.CANDIDATES);
+    return data ? JSON.parse(data) : [];
+}
+
+function saveCandidates(candidates) {
+    localStorage.setItem(STORAGE_KEYS.CANDIDATES, JSON.stringify(candidates));
+}
+
+function loadCandidates() {
+    const candidates = getCandidates();
+    renderCandidatesTable(candidates);
+}
+
+function renderCandidatesTable(candidates) {
+    const tbody = document.getElementById('candidates-table-body');
+    const emptyState = document.getElementById('empty-candidates');
+
+    if (!tbody) return;
+
+    if (candidates.length === 0) {
+        tbody.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+
+    if (emptyState) emptyState.style.display = 'none';
+
+    const categoryLabels = {
+        growth: '成長株',
+        value: 'バリュー株',
+        dividend: '高配当株',
+        tech: 'テクノロジー',
+        healthcare: 'ヘルスケア',
+        finance: '金融',
+        other: 'その他'
+    };
+
+    const priorityLabels = {
+        high: { text: '高', class: 'danger' },
+        medium: { text: '中', class: 'warning' },
+        low: { text: '低', class: 'info' }
+    };
+
+    tbody.innerHTML = candidates.map(candidate => {
+        const priority = priorityLabels[candidate.priority] || priorityLabels.medium;
+        const category = categoryLabels[candidate.category] || candidate.category;
+
+        return `
+            <tr>
+                <td>
+                    <div class="stock-name">
+                        <div class="stock-icon" style="background: var(--accent-primary);">
+                            ${candidate.symbol.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div class="stock-name-text">
+                            <span class="symbol">${escapeHtml(candidate.symbol)}</span>
+                            <span class="name">${escapeHtml(candidate.name)}</span>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="tag">${category}</span></td>
+                <td><span class="tag" style="background: rgba(var(--${priority.class}-rgb, 239, 68, 68), 0.15); color: var(--${priority.class});">${priority.text}</span></td>
+                <td>¥${formatNumber(candidate.targetPrice || '-')}</td>
+                <td>¥${formatNumber(candidate.currentPrice || '-')}</td>
+                <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${escapeHtml(candidate.memo || '-')}
+                </td>
+                <td>${candidate.addedAt ? formatDate(new Date(candidate.addedAt)) : '-'}</td>
+                <td>
+                    <div class="stock-actions">
+                        <button class="stock-action-btn buy" onclick="addCandidateToPortfolio('${candidate.id}')" title="ポートフォリオに追加">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="stock-action-btn watch" onclick="addCandidateToWatchlist('${candidate.id}')" title="ウォッチリストに追加">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="stock-action-btn remove" onclick="deleteCandidate('${candidate.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function openAddCandidateModal() {
+    document.getElementById('candidate-form').reset();
+    document.getElementById('candidate-id').value = '';
+    document.getElementById('candidate-modal').classList.add('active');
+}
+
+function closeCandidateModal() {
+    document.getElementById('candidate-modal').classList.remove('active');
+}
+
+function deleteCandidate(id) {
+    if (!confirm('この候補銘柄を削除しますか？')) return;
+
+    let candidates = getCandidates();
+    candidates = candidates.filter(c => c.id !== id);
+    saveCandidates(candidates);
+    loadCandidates();
+    showNotification('候補銘柄を削除しました', 'success');
+}
+
+function addCandidateToPortfolio(id) {
+    const candidates = getCandidates();
+    const candidate = candidates.find(c => c.id === id);
+
+    if (!candidate) return;
+
+    document.getElementById('asset-modal-title').innerHTML = '<i class="fas fa-plus"></i> 銘柄追加';
+    document.getElementById('asset-form').reset();
+    document.getElementById('asset-id').value = '';
+    document.getElementById('asset-symbol').value = candidate.symbol;
+    document.getElementById('asset-name').value = candidate.name;
+    document.getElementById('asset-current-price').value = candidate.currentPrice || '';
+    document.getElementById('asset-purchase-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('asset-modal').classList.add('active');
+}
+
+function addCandidateToWatchlist(id) {
+    const candidates = getCandidates();
+    const candidate = candidates.find(c => c.id === id);
+
+    if (!candidate) return;
+
+    const watchlist = getWatchlist();
+
+    // すでにウォッチリストにあるか確認
+    if (watchlist.some(w => w.symbol === candidate.symbol)) {
+        showNotification('この銘柄はすでにウォッチリストにあります', 'info');
+        return;
+    }
+
+    watchlist.push({
+        id: generateId(),
+        symbol: candidate.symbol,
+        name: candidate.name,
+        type: 'stock',
+        currentPrice: candidate.currentPrice,
+        targetPrice: candidate.targetPrice,
+        memo: candidate.memo,
+        addedAt: new Date().toISOString()
+    });
+
+    saveWatchlistData(watchlist);
+    showNotification('ウォッチリストに追加しました', 'success');
+}
+
+// 投資メモ
+function loadInvestmentNotes() {
+    const notes = localStorage.getItem(STORAGE_KEYS.INVESTMENT_NOTES) || '';
+    const notesEl = document.getElementById('investment-notes');
+    if (notesEl) {
+        notesEl.value = notes;
+    }
+}
+
+function saveInvestmentNotes() {
+    const notesEl = document.getElementById('investment-notes');
+    if (notesEl) {
+        localStorage.setItem(STORAGE_KEYS.INVESTMENT_NOTES, notesEl.value);
+        showNotification('メモを保存しました', 'success');
+    }
+}
+
+// ============================================
+// ユーティリティ関数（資産管理用）
+// ============================================
+
+function getAssetColor(type) {
+    const colors = {
+        stock: '#6366f1',
+        crypto: '#f59e0b',
+        fund: '#10b981',
+        bond: '#3b82f6',
+        other: '#64748b'
+    };
+    return colors[type] || colors.other;
+}
+
+function formatNumber(num) {
+    if (num === null || num === undefined || num === '-') return '-';
+    return Number(num).toLocaleString();
+}
+
+function generateDateLabels(days) {
+    const labels = [];
+    const today = new Date();
+    for (let i = days - 1; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        labels.push(`${date.getMonth() + 1}/${date.getDate()}`);
+    }
+    return labels;
+}
+
+function generateHistoricalData(currentValue, days) {
+    const data = [];
+    let value = currentValue * 0.9; // 開始値は現在値の90%
+    const dailyChange = (currentValue - value) / days;
+
+    for (let i = 0; i < days; i++) {
+        // ランダムな変動を加える
+        const randomFactor = 1 + (Math.random() - 0.5) * 0.02;
+        value = value * randomFactor + dailyChange;
+        data.push(Math.round(value));
+    }
+
+    // 最後の値を現在値に調整
+    data[data.length - 1] = currentValue;
+
+    return data;
+}
+
+// ============================================
+// フォームイベントリスナー（資産管理用）
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 資産フォーム
+    const assetForm = document.getElementById('asset-form');
+    if (assetForm) {
+        assetForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('asset-id').value;
+            const assetData = {
+                id: id || generateId(),
+                symbol: document.getElementById('asset-symbol').value.trim(),
+                name: document.getElementById('asset-name').value.trim(),
+                type: document.getElementById('asset-type').value,
+                market: document.getElementById('asset-market').value,
+                quantity: parseFloat(document.getElementById('asset-quantity').value),
+                avgPrice: parseFloat(document.getElementById('asset-avg-price').value),
+                currentPrice: parseFloat(document.getElementById('asset-current-price').value) || null,
+                purchaseDate: document.getElementById('asset-purchase-date').value,
+                memo: document.getElementById('asset-memo').value.trim(),
+                updatedAt: new Date().toISOString()
+            };
+
+            let portfolio = getPortfolio();
+
+            if (id) {
+                // 編集
+                const index = portfolio.findIndex(a => a.id === id);
+                if (index !== -1) {
+                    portfolio[index] = { ...portfolio[index], ...assetData };
+                }
+                showNotification('銘柄を更新しました', 'success');
+            } else {
+                // 新規追加
+                assetData.addedAt = new Date().toISOString();
+                portfolio.push(assetData);
+                showNotification('銘柄を追加しました', 'success');
+            }
+
+            savePortfolio(portfolio);
+            closeAssetModal();
+            loadPortfolio();
+            initPortfolioCharts();
+        });
+    }
+
+    // ウォッチリストフォーム
+    const watchlistForm = document.getElementById('watchlist-form');
+    if (watchlistForm) {
+        watchlistForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const watchlistData = {
+                id: generateId(),
+                symbol: document.getElementById('watchlist-symbol').value.trim(),
+                name: document.getElementById('watchlist-name').value.trim(),
+                type: document.getElementById('watchlist-type').value,
+                targetPrice: parseFloat(document.getElementById('watchlist-target-price').value) || null,
+                memo: document.getElementById('watchlist-memo').value.trim(),
+                addedAt: new Date().toISOString()
+            };
+
+            let watchlist = getWatchlist();
+            watchlist.push(watchlistData);
+            saveWatchlistData(watchlist);
+
+            closeWatchlistModal();
+            loadWatchlist();
+            showNotification('ウォッチリストに追加しました', 'success');
+        });
+    }
+
+    // 候補銘柄フォーム
+    const candidateForm = document.getElementById('candidate-form');
+    if (candidateForm) {
+        candidateForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const candidateData = {
+                id: generateId(),
+                symbol: document.getElementById('candidate-symbol').value.trim(),
+                name: document.getElementById('candidate-name').value.trim(),
+                category: document.getElementById('candidate-category-select').value,
+                priority: document.getElementById('candidate-priority-select').value,
+                targetPrice: parseFloat(document.getElementById('candidate-target').value) || null,
+                currentPrice: parseFloat(document.getElementById('candidate-current').value) || null,
+                memo: document.getElementById('candidate-memo').value.trim(),
+                addedAt: new Date().toISOString()
+            };
+
+            let candidates = getCandidates();
+            candidates.push(candidateData);
+            saveCandidates(candidates);
+
+            closeCandidateModal();
+            loadCandidates();
+            showNotification('候補銘柄を追加しました', 'success');
+        });
+    }
+
+    // 候補銘柄の検索・フィルター
+    const candidateSearch = document.getElementById('candidate-search');
+    const candidateCategoryFilter = document.getElementById('candidate-category');
+    const candidatePriorityFilter = document.getElementById('candidate-priority');
+
+    if (candidateSearch) {
+        candidateSearch.addEventListener('input', filterCandidates);
+    }
+    if (candidateCategoryFilter) {
+        candidateCategoryFilter.addEventListener('change', filterCandidates);
+    }
+    if (candidatePriorityFilter) {
+        candidatePriorityFilter.addEventListener('change', filterCandidates);
+    }
+});
+
+function filterCandidates() {
+    const searchTerm = (document.getElementById('candidate-search')?.value || '').toLowerCase();
+    const categoryFilter = document.getElementById('candidate-category')?.value || '';
+    const priorityFilter = document.getElementById('candidate-priority')?.value || '';
+
+    let candidates = getCandidates();
+
+    if (searchTerm) {
+        candidates = candidates.filter(c =>
+            c.symbol.toLowerCase().includes(searchTerm) ||
+            c.name.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    if (categoryFilter) {
+        candidates = candidates.filter(c => c.category === categoryFilter);
+    }
+
+    if (priorityFilter) {
+        candidates = candidates.filter(c => c.priority === priorityFilter);
+    }
+
+    renderCandidatesTable(candidates);
+}
+
+// グローバル関数として公開（資産管理用）
+window.openAddAssetModal = openAddAssetModal;
+window.openEditAssetModal = openEditAssetModal;
+window.closeAssetModal = closeAssetModal;
+window.deleteAsset = deleteAsset;
+window.refreshPortfolio = refreshPortfolio;
+window.openAddWatchlistModal = openAddWatchlistModal;
+window.closeWatchlistModal = closeWatchlistModal;
+window.deleteWatchlistItem = deleteWatchlistItem;
+window.addWatchlistToPortfolio = addWatchlistToPortfolio;
+window.openAddCandidateModal = openAddCandidateModal;
+window.closeCandidateModal = closeCandidateModal;
+window.deleteCandidate = deleteCandidate;
+window.addCandidateToPortfolio = addCandidateToPortfolio;
+window.addCandidateToWatchlist = addCandidateToWatchlist;
+window.saveInvestmentNotes = saveInvestmentNotes;
+window.openAddAlertModal = function() { showNotification('アラート機能は開発中です', 'info'); };

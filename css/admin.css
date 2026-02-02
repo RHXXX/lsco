@@ -1,4 +1,58 @@
-/* 管理画面用スタイル */
+/* 管理画面用スタイル - ダークテーマ版 */
+
+/* ============================================
+   CSS Variables (カスタムプロパティ)
+   ============================================ */
+:root {
+    --bg-primary: #0a0e17;
+    --bg-secondary: #0d1421;
+    --bg-card: #111827;
+    --bg-card-hover: #1a2332;
+    --bg-input: #1a2332;
+    --bg-sidebar: #0d1421;
+    --bg-header: #111827;
+
+    --text-primary: #ffffff;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    --accent-primary: #6366f1;
+    --accent-secondary: #8b5cf6;
+    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+
+    --border-color: #1e293b;
+    --border-light: #334155;
+
+    --chart-1: #6366f1;
+    --chart-2: #8b5cf6;
+    --chart-3: #ec4899;
+    --chart-4: #14b8a6;
+    --chart-5: #f59e0b;
+
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   リセット & ベース
+   ============================================ */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    margin: 0;
+    padding: 0;
+}
 
 /* ============================================
    ログイン画面
@@ -8,17 +62,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--bg-primary);
+    background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
     padding: 20px;
 }
 
 .login-container {
-    background: white;
+    background: var(--bg-card);
     padding: 3rem;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    border-radius: 24px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
 }
 
 .login-header {
@@ -28,16 +86,16 @@
 
 .login-header h1 {
     font-size: 1.8rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
 }
 
 .login-header h1 i {
-    color: #667eea;
+    color: var(--accent-primary);
 }
 
 .login-header p {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
@@ -49,7 +107,7 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #333;
+    color: var(--text-secondary);
 }
 
 .password-input-wrapper {
@@ -60,50 +118,59 @@
     width: 100%;
     padding: 1rem;
     padding-right: 3rem;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
     font-size: 1rem;
-    transition: border-color 0.3s ease;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
 .password-input-wrapper input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.password-input-wrapper input::placeholder {
+    color: var(--text-muted);
 }
 
 .toggle-password {
     position: absolute;
-    right: 10px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
-    color: #64748b;
+    color: var(--text-muted);
     padding: 5px;
+    transition: color 0.3s ease;
 }
 
 .toggle-password:hover {
-    color: #333;
+    color: var(--text-primary);
 }
 
 .login-error {
-    background: #fee2e2;
-    color: #991b1b;
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
     padding: 0.75rem;
     border-radius: 8px;
     margin-bottom: 1rem;
     font-size: 0.9rem;
     text-align: center;
+    border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .login-button {
     width: 100%;
     padding: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--accent-gradient);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
@@ -112,7 +179,7 @@
 
 .login-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
 }
 
 .login-footer {
@@ -121,14 +188,14 @@
 }
 
 .login-footer a {
-    color: #64748b;
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.9rem;
     transition: color 0.3s ease;
 }
 
 .login-footer a:hover {
-    color: #667eea;
+    color: var(--accent-primary);
 }
 
 /* ============================================
@@ -137,12 +204,13 @@
 .admin-panel {
     display: flex;
     min-height: 100vh;
+    background: var(--bg-primary);
 }
 
 /* サイドバー */
 .admin-sidebar {
-    width: 260px;
-    background: #1e293b;
+    width: 280px;
+    background: var(--bg-sidebar);
     color: white;
     display: flex;
     flex-direction: column;
@@ -152,102 +220,135 @@
     bottom: 0;
     z-index: 100;
     transition: transform 0.3s ease;
+    border-right: 1px solid var(--border-color);
 }
 
 .admin-sidebar.collapsed {
-    transform: translateX(-260px);
+    transform: translateX(-280px);
 }
 
 .sidebar-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #334155;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .sidebar-header h2 {
     font-size: 1.3rem;
-    font-weight: 600;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .sidebar-header h2 i {
-    margin-right: 0.5rem;
-    color: #667eea;
+    color: var(--accent-primary);
 }
 
 .sidebar-nav {
     flex: 1;
     padding: 1rem 0;
+    overflow-y: auto;
 }
 
 .sidebar-nav ul {
     list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .sidebar-nav .nav-item {
-    margin-bottom: 0.25rem;
+    margin: 0.25rem 0.75rem;
 }
 
 .sidebar-nav .nav-item a {
     display: flex;
     align-items: center;
-    padding: 1rem 1.5rem;
-    color: #94a3b8;
+    padding: 0.875rem 1rem;
+    color: var(--text-secondary);
     text-decoration: none;
     transition: all 0.3s ease;
     gap: 0.75rem;
+    border-radius: 10px;
+    font-weight: 500;
 }
 
 .sidebar-nav .nav-item a:hover,
 .sidebar-nav .nav-item.active a {
-    background: #334155;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--text-primary);
+}
+
+.sidebar-nav .nav-item.active a {
+    background: var(--accent-gradient);
     color: white;
-    border-left: 3px solid #667eea;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
 }
 
 .sidebar-nav .nav-item a i {
     width: 20px;
     text-align: center;
+    font-size: 1.1rem;
+}
+
+/* Owner限定メニュー */
+.sidebar-nav .nav-item.owner-only {
+    border-top: 1px solid var(--border-color);
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+.sidebar-nav .nav-item.owner-only::before {
+    content: 'OWNER';
+    display: block;
+    font-size: 0.7rem;
+    color: var(--accent-primary);
+    padding: 0 1rem 0.5rem;
+    letter-spacing: 1px;
+    font-weight: 600;
 }
 
 .sidebar-footer {
     padding: 1.5rem;
-    border-top: 1px solid #334155;
+    border-top: 1px solid var(--border-color);
 }
 
 .logout-button {
     width: 100%;
     padding: 0.75rem;
-    background: #ef4444;
-    color: white;
-    border: none;
-    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
     cursor: pointer;
     font-size: 0.95rem;
-    transition: background 0.3s ease;
+    font-weight: 500;
+    transition: all 0.3s ease;
     margin-bottom: 0.75rem;
 }
 
 .logout-button:hover {
-    background: #dc2626;
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
 }
 
 .back-to-site {
     display: block;
     text-align: center;
-    color: #94a3b8;
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.9rem;
     transition: color 0.3s ease;
 }
 
 .back-to-site:hover {
-    color: white;
+    color: var(--accent-primary);
 }
 
 /* メインコンテンツ */
 .admin-main {
     flex: 1;
-    margin-left: 260px;
-    background: #f1f5f9;
+    margin-left: 280px;
+    background: var(--bg-primary);
     min-height: 100vh;
     transition: margin-left 0.3s ease;
 }
@@ -258,12 +359,12 @@
 
 /* ヘッダー */
 .admin-header {
-    background: white;
+    background: var(--bg-header);
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
     z-index: 50;
@@ -277,25 +378,28 @@
 
 .sidebar-toggle {
     display: none;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    font-size: 1.2rem;
     cursor: pointer;
-    color: #333;
-    padding: 0.5rem;
+    color: var(--text-primary);
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
 }
 
 .admin-header h1 {
     font-size: 1.5rem;
-    color: #333;
+    color: var(--text-primary);
+    font-weight: 600;
 }
 
 .admin-user {
-    color: #64748b;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
 }
 
 .admin-user i {
-    color: #667eea;
+    color: var(--accent-primary);
     margin-right: 0.5rem;
 }
 
@@ -310,6 +414,12 @@
 
 .content-section.active {
     display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================================
@@ -317,68 +427,73 @@
    ============================================ */
 .dashboard-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
 .dashboard-card {
-    background: white;
+    background: var(--bg-card);
     padding: 1.5rem;
-    border-radius: 15px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
 .dashboard-card:hover {
     transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-primary);
 }
 
 .card-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px;
+    background: var(--accent-gradient);
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
     color: white;
+    flex-shrink: 0;
 }
 
 .card-info h3 {
     font-size: 1.8rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 0.25rem;
+    font-weight: 700;
 }
 
 .card-info p {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
 .quick-actions,
 .recent-templates {
-    background: white;
+    background: var(--bg-card);
     padding: 1.5rem;
-    border-radius: 15px;
+    border-radius: 16px;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
 }
 
 .quick-actions h2,
 .recent-templates h2 {
     font-size: 1.2rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 1rem;
+    font-weight: 600;
 }
 
 .quick-actions h2 i,
 .recent-templates h2 i {
-    color: #667eea;
+    color: var(--accent-primary);
     margin-right: 0.5rem;
 }
 
@@ -397,16 +512,18 @@
 
 #dashboard-category-filter {
     padding: 0.5rem 1rem;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 0.9rem;
     min-width: 180px;
     cursor: pointer;
+    color: var(--text-primary);
 }
 
 #dashboard-category-filter:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent-primary);
 }
 
 .action-buttons {
@@ -417,18 +534,19 @@
 
 .action-btn {
     padding: 0.75rem 1.5rem;
-    background: #f1f5f9;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     cursor: pointer;
     font-size: 0.95rem;
-    color: #333;
+    color: var(--text-secondary);
     transition: all 0.3s ease;
 }
 
 .action-btn:hover {
-    border-color: #667eea;
-    color: #667eea;
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: rgba(99, 102, 241, 0.1);
 }
 
 .action-btn i {
@@ -436,28 +554,31 @@
 }
 
 /* ============================================
-   テンプレート管理
+   セクションヘッダー & ボタン
    ============================================ */
 .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .section-header h2 {
     font-size: 1.5rem;
-    color: #333;
+    color: var(--text-primary);
+    font-weight: 600;
 }
 
 .section-header h2 i {
-    color: #667eea;
+    color: var(--accent-primary);
     margin-right: 0.5rem;
 }
 
 .primary-btn {
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--accent-gradient);
     color: white;
     border: none;
     border-radius: 10px;
@@ -469,7 +590,13 @@
 
 .primary-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 5px 20px rgba(99, 102, 241, 0.35);
+}
+
+.primary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .primary-btn i {
@@ -478,9 +605,9 @@
 
 .secondary-btn {
     padding: 0.75rem 1.5rem;
-    background: white;
-    color: #333;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     cursor: pointer;
     font-size: 0.95rem;
@@ -489,15 +616,17 @@
 }
 
 .secondary-btn:hover {
-    border-color: #667eea;
-    color: #667eea;
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
 }
 
 .secondary-btn i {
     margin-right: 0.5rem;
 }
 
-/* フィルター */
+/* ============================================
+   テンプレート管理
+   ============================================ */
 .template-filters {
     display: flex;
     gap: 1rem;
@@ -516,35 +645,43 @@
     left: 1rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .search-box input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 2.5rem;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     font-size: 1rem;
-    transition: border-color 0.3s ease;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
 }
 
 .search-box input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent-primary);
+}
+
+.search-box input::placeholder {
+    color: var(--text-muted);
 }
 
 #category-filter {
     padding: 0.75rem 1rem;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     font-size: 1rem;
     min-width: 200px;
     cursor: pointer;
+    color: var(--text-primary);
 }
 
 #category-filter:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent-primary);
 }
 
 /* テンプレートリスト */
@@ -554,19 +691,18 @@
 }
 
 .template-item {
-    background: white;
+    background: var(--bg-card);
     padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-radius: 14px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     transition: all 0.3s ease;
-    border: 2px solid transparent;
+    border: 1px solid var(--border-color);
 }
 
 .template-item:hover {
-    border-color: #667eea;
+    border-color: var(--accent-primary);
     transform: translateX(5px);
 }
 
@@ -576,8 +712,9 @@
 
 .template-info h3 {
     font-size: 1.1rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
+    font-weight: 600;
 }
 
 .template-meta {
@@ -585,7 +722,7 @@
     gap: 1rem;
     flex-wrap: wrap;
     font-size: 0.85rem;
-    color: #64748b;
+    color: var(--text-secondary);
     margin-bottom: 0.5rem;
 }
 
@@ -596,7 +733,7 @@
 }
 
 .template-preview-text {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 0.9rem;
     line-height: 1.5;
     max-height: 3em;
@@ -612,8 +749,8 @@
 }
 
 .tag {
-    background: #e0e7ff;
-    color: #4338ca;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--accent-primary);
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -635,48 +772,48 @@
 }
 
 .use-btn {
-    background: #10b981;
-    color: white;
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
 }
 
 .use-btn:hover {
-    background: #059669;
+    background: rgba(16, 185, 129, 0.25);
 }
 
 .edit-btn {
-    background: #3b82f6;
-    color: white;
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--info);
 }
 
 .edit-btn:hover {
-    background: #2563eb;
+    background: rgba(59, 130, 246, 0.25);
 }
 
 .delete-btn {
-    background: #ef4444;
-    color: white;
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger);
 }
 
 .delete-btn:hover {
-    background: #dc2626;
+    background: rgba(239, 68, 68, 0.25);
 }
 
 /* 空の状態 */
 .empty-state {
     text-align: center;
     padding: 3rem;
-    color: #64748b;
+    color: var(--text-secondary);
 }
 
 .empty-state i {
     font-size: 4rem;
-    color: #cbd5e1;
+    color: var(--text-muted);
     margin-bottom: 1rem;
 }
 
 .empty-state h3 {
     font-size: 1.3rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 0.5rem;
 }
 
@@ -685,29 +822,29 @@
    ============================================ */
 #settings-section h2 {
     font-size: 1.5rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 2rem;
 }
 
 #settings-section h2 i {
-    color: #667eea;
+    color: var(--accent-primary);
     margin-right: 0.5rem;
 }
 
 .settings-group {
-    background: white;
+    background: var(--bg-card);
     padding: 1.5rem;
-    border-radius: 15px;
+    border-radius: 16px;
     margin-bottom: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
 }
 
 .settings-group h3 {
     font-size: 1.1rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .settings-group .form-group {
@@ -718,22 +855,25 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #333;
+    color: var(--text-secondary);
 }
 
 .settings-group input[type="text"],
-.settings-group input[type="password"] {
+.settings-group input[type="password"],
+.settings-group input[type="number"] {
     width: 100%;
     max-width: 400px;
     padding: 0.75rem;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
+    color: var(--text-primary);
 }
 
 .settings-group input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent-primary);
 }
 
 /* 集計設定（シンプル版） */
@@ -753,41 +893,44 @@
 .calc-settings-simple .settings-row label {
     min-width: 140px;
     font-weight: 500;
-    color: #374151;
+    color: var(--text-secondary);
+    margin-bottom: 0;
 }
 
 .calc-settings-simple .settings-row input {
     flex: 1;
     padding: 0.75rem;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
+    color: var(--text-primary);
 }
 
 .calc-settings-simple .settings-row input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent-primary);
 }
 
 /* 歩合表示（自動計算・読み取り専用） */
 .calc-b-commission-display {
     display: inline-block;
     padding: 0.5rem;
-    background: #f3f4f6;
+    background: var(--bg-input);
     border-radius: 4px;
     min-width: 60px;
     text-align: right;
     font-weight: 500;
-    color: #374151;
+    color: var(--accent-primary);
 }
 
 /* 合計表示行 */
 .calc-totals-row {
     margin-top: 1rem;
     padding: 0.75rem;
-    background: #f0f9ff;
+    background: rgba(99, 102, 241, 0.1);
     border-radius: 8px;
-    border: 1px solid #bae6fd;
+    border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
 /* カテゴリー管理 */
@@ -805,6 +948,7 @@
 .category-list {
     list-style: none;
     max-width: 400px;
+    padding: 0;
 }
 
 .category-list li {
@@ -812,22 +956,23 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem;
-    background: #f8fafc;
+    background: var(--bg-input);
     border-radius: 8px;
     margin-bottom: 0.5rem;
+    color: var(--text-primary);
 }
 
 .category-list li button {
     background: none;
     border: none;
-    color: #ef4444;
+    color: var(--danger);
     cursor: pointer;
     font-size: 1rem;
     transition: color 0.3s ease;
 }
 
 .category-list li button:hover {
-    color: #dc2626;
+    color: #f87171;
 }
 
 /* データ管理 */
@@ -847,11 +992,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.7);
     z-index: 1000;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    backdrop-filter: blur(5px);
 }
 
 .modal.active {
@@ -859,13 +1005,14 @@
 }
 
 .modal-content {
-    background: white;
+    background: var(--bg-card);
     border-radius: 20px;
     width: 100%;
     max-width: 600px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
 }
 
 .modal-content.use-modal {
@@ -874,7 +1021,7 @@
 
 .modal-header {
     padding: 1.5rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -882,11 +1029,11 @@
 
 .modal-header h2 {
     font-size: 1.3rem;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .modal-header h2 i {
-    color: #667eea;
+    color: var(--accent-primary);
     margin-right: 0.5rem;
 }
 
@@ -894,14 +1041,14 @@
     background: none;
     border: none;
     font-size: 2rem;
-    color: #64748b;
+    color: var(--text-muted);
     cursor: pointer;
     line-height: 1;
     transition: color 0.3s ease;
 }
 
 .modal-close:hover {
-    color: #333;
+    color: var(--text-primary);
 }
 
 #template-form {
@@ -916,7 +1063,7 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #333;
+    color: var(--text-secondary);
 }
 
 #template-form input,
@@ -924,17 +1071,19 @@
 #template-form textarea {
     width: 100%;
     padding: 0.75rem;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
     font-family: inherit;
+    color: var(--text-primary);
 }
 
 #template-form input:focus,
 #template-form select:focus,
 #template-form textarea:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent-primary);
 }
 
 #template-form textarea {
@@ -944,7 +1093,7 @@
 
 .modal-footer {
     padding: 1.5rem;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
@@ -969,13 +1118,13 @@
 .preview-section-header label {
     font-size: 1rem;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .copy-btn {
     padding: 0.5rem 1rem;
-    background: #10b981;
-    color: white;
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -984,7 +1133,7 @@
 }
 
 .copy-btn:hover {
-    background: #059669;
+    background: rgba(16, 185, 129, 0.25);
 }
 
 .copy-btn i {
@@ -992,7 +1141,7 @@
 }
 
 .preview-title-wrapper {
-    background: #f8fafc;
+    background: var(--bg-input);
     border-radius: 10px;
     padding: 0.5rem 1rem;
 }
@@ -1003,7 +1152,7 @@
     background: transparent;
     font-size: 1.1rem;
     font-weight: 500;
-    color: #333;
+    color: var(--text-primary);
     font-family: inherit;
 }
 
@@ -1012,7 +1161,7 @@
 }
 
 .preview-content-wrapper {
-    background: #f8fafc;
+    background: var(--bg-input);
     border-radius: 10px;
     padding: 1rem;
 }
@@ -1026,6 +1175,7 @@
     line-height: 1.8;
     resize: none;
     font-family: inherit;
+    color: var(--text-primary);
 }
 
 .preview-content-wrapper textarea:focus {
@@ -1035,8 +1185,8 @@
 .copy-success {
     text-align: center;
     padding: 1rem;
-    background: #d1fae5;
-    color: #065f46;
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
     border-radius: 8px;
     margin: 0 1.5rem 1.5rem;
 }
@@ -1049,7 +1199,7 @@
     bottom: 20px;
     right: 20px;
     padding: 1rem 1.5rem;
-    border-radius: 10px;
+    border-radius: 12px;
     color: white;
     font-weight: 500;
     z-index: 2000;
@@ -1064,15 +1214,15 @@
 }
 
 .notification.success {
-    background: #10b981;
+    background: var(--success);
 }
 
 .notification.error {
-    background: #ef4444;
+    background: var(--danger);
 }
 
 .notification.info {
-    background: #3b82f6;
+    background: var(--info);
 }
 
 /* ============================================
@@ -1085,22 +1235,22 @@
 }
 
 .calc-section {
-    background: white;
+    background: var(--bg-card);
     padding: 1.5rem;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
 }
 
 .calc-section h3 {
     font-size: 1.1rem;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .calc-section h3 i {
-    color: #667eea;
+    color: var(--accent-primary);
     margin-right: 0.5rem;
 }
 
@@ -1118,25 +1268,28 @@
 
 .calc-field label {
     font-weight: 500;
-    color: #333;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
 .calc-field input {
     padding: 0.75rem;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
+    color: var(--text-primary);
 }
 
 .calc-field input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent-primary);
 }
 
 .calc-actions {
     display: flex;
     gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 /* 集計テーブル */
@@ -1154,55 +1307,59 @@
 .calc-table td {
     padding: 0.75rem;
     text-align: center;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .calc-table th {
-    background: #f8fafc;
+    background: var(--bg-input);
     font-weight: 600;
-    color: #333;
+    color: var(--text-secondary);
     font-size: 0.85rem;
 }
 
 .calc-table td {
     font-size: 0.95rem;
+    color: var(--text-primary);
 }
 
 .calc-table .price-cell {
     font-weight: 600;
-    color: #667eea;
+    color: var(--accent-primary);
     text-align: left;
 }
 
 .calc-table .subtotal-cell,
 .calc-table .total-cell {
     font-weight: 500;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .calc-table .total-cell {
-    color: #10b981;
+    color: var(--success);
     font-weight: 600;
 }
 
 .calc-table input {
     width: 80px;
     padding: 0.5rem;
-    border: 2px solid #e2e8f0;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     text-align: center;
     font-size: 0.95rem;
+    color: var(--text-primary);
 }
 
 .calc-table input:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent-primary);
 }
 
 /* 集計結果 */
 .calc-results {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--accent-gradient);
     color: white;
+    border: none;
 }
 
 .result-row {
@@ -1260,14 +1417,14 @@
 
 /* 出力プレビュー */
 .calc-preview {
-    background: #1e293b;
+    background: var(--bg-secondary);
     border-radius: 10px;
     padding: 1rem;
     overflow-x: auto;
 }
 
 .calc-preview pre {
-    color: #e2e8f0;
+    color: var(--text-secondary);
     font-family: 'Courier New', monospace;
     font-size: 0.9rem;
     line-height: 1.6;
@@ -1293,8 +1450,7 @@
 .submenu {
     display: none;
     list-style: none;
-    background: #1a2332;
-    padding: 0;
+    padding: 0.5rem 0 0 0;
     margin: 0;
 }
 
@@ -1302,21 +1458,27 @@
     display: block;
 }
 
+.submenu-item {
+    margin: 0;
+}
+
 .submenu-item a {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1.5rem 0.75rem 2.5rem;
-    color: #94a3b8;
+    padding: 0.625rem 1rem 0.625rem 2.75rem;
+    color: var(--text-muted);
     text-decoration: none;
     font-size: 0.9rem;
     transition: all 0.3s ease;
     gap: 0.5rem;
+    border-radius: 8px;
+    margin: 0.125rem 0.75rem;
 }
 
 .submenu-item a:hover,
 .submenu-item.active a {
-    background: #334155;
-    color: white;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--text-primary);
 }
 
 /* ============================================
@@ -1335,19 +1497,18 @@
 }
 
 .calc-staff-card {
-    background: white;
-    border-radius: 15px;
+    background: var(--bg-card);
+    border-radius: 16px;
     padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     cursor: pointer;
     transition: all 0.3s ease;
-    border: 2px solid transparent;
+    border: 1px solid var(--border-color);
 }
 
 .calc-staff-card:hover {
-    border-color: #667eea;
+    border-color: var(--accent-primary);
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-md);
 }
 
 .staff-card-header {
@@ -1356,18 +1517,18 @@
     gap: 0.75rem;
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .staff-card-header i {
     font-size: 1.5rem;
-    color: #667eea;
+    color: var(--accent-primary);
 }
 
 .staff-card-header span {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .staff-card-stats {
@@ -1383,34 +1544,34 @@
 }
 
 .staff-card-stats .label {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
 .staff-card-stats .value {
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
 }
 
 /* 担当者A/Bセクション */
 .calc-section-a {
-    background: #f0f9ff;
-    border: 2px solid #0ea5e9;
+    background: rgba(14, 165, 233, 0.1);
+    border: 1px solid rgba(14, 165, 233, 0.3);
 }
 
 .calc-section-a h3 {
-    color: #0369a1;
-    border-bottom-color: #0ea5e9;
+    color: #38bdf8;
+    border-bottom-color: rgba(14, 165, 233, 0.3);
 }
 
 .calc-section-b {
-    background: #fef3c7;
-    border: 2px solid #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .calc-section-b h3 {
-    color: #b45309;
-    border-bottom-color: #f59e0b;
+    color: #fbbf24;
+    border-bottom-color: rgba(245, 158, 11, 0.3);
 }
 
 .calc-table-a .a-quantity,
@@ -1420,7 +1581,7 @@
 }
 
 .calc-table-a .a-subtotal {
-    color: #0369a1;
+    color: #38bdf8;
 }
 
 /* ============================================
@@ -1433,23 +1594,23 @@
 }
 
 .calendar-item {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    background: var(--bg-card);
+    border-radius: 16px;
     overflow: hidden;
+    border: 1px solid var(--border-color);
 }
 
 .calendar-item h3 {
     padding: 1rem 1.5rem;
     margin: 0;
     font-size: 1.1rem;
-    color: #333;
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .calendar-item h3 i {
-    color: #667eea;
+    color: var(--accent-primary);
     margin-right: 0.5rem;
 }
 
@@ -1465,11 +1626,425 @@
 }
 
 /* ============================================
+   資産管理 - ダッシュボードスタイル
+   ============================================ */
+.asset-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* 資産サマリーカード */
+.asset-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.asset-summary-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.asset-summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+}
+
+.asset-summary-card.total::before {
+    background: var(--accent-gradient);
+}
+
+.asset-summary-card.investment::before {
+    background: linear-gradient(90deg, #10b981, #14b8a6);
+}
+
+.asset-summary-card.profit::before {
+    background: linear-gradient(90deg, #f59e0b, #f97316);
+}
+
+.asset-summary-card.watchlist::before {
+    background: linear-gradient(90deg, #ec4899, #f472b6);
+}
+
+.asset-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.asset-card-header .label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.asset-card-header .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--accent-primary);
+}
+
+.asset-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.asset-card-change {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.asset-card-change.positive {
+    color: var(--success);
+}
+
+.asset-card-change.negative {
+    color: var(--danger);
+}
+
+/* チャートコンテナ */
+.chart-container {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.chart-header h3 {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.chart-header h3 i {
+    color: var(--accent-primary);
+    margin-right: 0.5rem;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.chart-btn {
+    padding: 0.5rem 1rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.chart-btn.active,
+.chart-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+.chart-wrapper {
+    height: 300px;
+    position: relative;
+}
+
+/* 銘柄リスト */
+.stock-list {
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.stock-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stock-list-header h3 {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.stock-list-header h3 i {
+    color: var(--accent-primary);
+    margin-right: 0.5rem;
+}
+
+.stock-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.stock-table th,
+.stock-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stock-table th {
+    background: var(--bg-input);
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stock-table tr:hover {
+    background: var(--bg-card-hover);
+}
+
+.stock-table td {
+    color: var(--text-primary);
+}
+
+.stock-name {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.stock-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: white;
+}
+
+.stock-name-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.stock-name-text .symbol {
+    font-weight: 600;
+}
+
+.stock-name-text .name {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.stock-price {
+    font-weight: 600;
+}
+
+.stock-change {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stock-change.positive {
+    color: var(--success);
+}
+
+.stock-change.negative {
+    color: var(--danger);
+}
+
+.stock-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.stock-action-btn {
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.stock-action-btn.buy {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+}
+
+.stock-action-btn.buy:hover {
+    background: rgba(16, 185, 129, 0.25);
+}
+
+.stock-action-btn.watch {
+    background: rgba(99, 102, 241, 0.15);
+    color: var(--accent-primary);
+}
+
+.stock-action-btn.watch:hover {
+    background: rgba(99, 102, 241, 0.25);
+}
+
+.stock-action-btn.remove {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--danger);
+}
+
+.stock-action-btn.remove:hover {
+    background: rgba(239, 68, 68, 0.25);
+}
+
+/* 分配チャート */
+.distribution-chart {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.distribution-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.legend-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.legend-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-left: auto;
+}
+
+/* グリッドレイアウト */
+.asset-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+.asset-grid-full {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 1200px) {
+    .asset-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 空状態 */
+.empty-portfolio {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-portfolio i {
+    font-size: 4rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.empty-portfolio h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.empty-portfolio p {
+    margin-bottom: 1.5rem;
+}
+
+/* 入力モーダル */
+.asset-input-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.asset-input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.asset-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.asset-input-group label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.asset-input-group input,
+.asset-input-group select {
+    padding: 0.75rem;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.asset-input-group input:focus,
+.asset-input-group select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+/* ============================================
    レスポンシブ
    ============================================ */
 @media (max-width: 1024px) {
     .admin-sidebar {
-        transform: translateX(-260px);
+        transform: translateX(-280px);
     }
 
     .admin-sidebar.open {
@@ -1545,5 +2120,21 @@
 
     .data-actions button {
         width: 100%;
+    }
+
+    .asset-summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .distribution-chart {
+        flex-direction: column;
+    }
+
+    .asset-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .asset-input-row {
+        grid-template-columns: 1fr;
     }
 }
