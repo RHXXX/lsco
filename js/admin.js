@@ -9,7 +9,7 @@ const USER_ROLES = {
     OWNER: {
         name: 'Owner',
         level: 4,
-        password: '=j#4374;vU',
+        password: 'LSCO0wn3r2026',
         description: '統制管理者／所有者'
     },
     ADMIN: {
