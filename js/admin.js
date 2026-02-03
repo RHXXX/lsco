@@ -9,28 +9,116 @@ const USER_ROLES = {
     OWNER: {
         name: 'Owner',
         level: 4,
-        password: 'owner2026',
+        password: 'X9k#mP2$vL8@nQ4w',
         description: '統制管理者／所有者'
     },
     ADMIN: {
         name: 'Admin',
         level: 3,
-        password: 'euSR9bQKwT',
+        password: 'Rj7$tW3#bN9@kF5y',
         description: '管理者'
     },
     OPERATOR: {
         name: 'Operator',
         level: 2,
-        password: 'wdaWxyNtVc',
+        password: 'Hy6@pM4$cK8#wZ2x',
         description: '運用者'
     },
     VIEWER: {
         name: 'Viewer',
         level: 1,
-        password: 'LSCO2026',
+        password: 'Qa5#nL7$rJ3@bT9v',
         description: '閲覧者'
     }
 };
+
+// 権限別アクセス制御設定（Ownerが変更可能）
+const DEFAULT_PERMISSION_CONFIG = {
+    // 各メニューの最小必要権限レベル
+    dashboard: 1,        // Viewer以上
+    templates: 1,        // Viewer以上
+    calculator: 3,       // Admin以上
+    calendar: 2,         // Operator以上
+    settings: 3,         // Admin以上
+    profile: 1,          // Viewer以上
+    assetManagement: 4   // Ownerのみ
+};
+
+// 権限設定を取得
+function getPermissionConfig() {
+    const saved = localStorage.getItem('lsco_permission_config');
+    if (saved) {
+        return JSON.parse(saved);
+    }
+    return DEFAULT_PERMISSION_CONFIG;
+}
+
+// 権限設定を保存（Ownerのみ）
+function savePermissionConfig(config) {
+    if (!currentUserRole || currentUserRole.level < USER_ROLES.OWNER.level) {
+        showNotification('この操作にはOwner権限が必要です', 'error');
+        return false;
+    }
+    localStorage.setItem('lsco_permission_config', JSON.stringify(config));
+    showNotification('権限設定を保存しました', 'success');
+    return true;
+}
+
+// メニューへのアクセス権限をチェック
+function canAccessMenu(menuName) {
+    if (!currentUserRole) return false;
+    const config = getPermissionConfig();
+    const requiredLevel = config[menuName] || 4;
+    return currentUserRole.level >= requiredLevel;
+}
+
+// 権限設定をUIから保存
+function savePermissionSettings() {
+    if (!currentUserRole || currentUserRole.level < USER_ROLES.OWNER.level) {
+        showNotification('この操作にはOwner権限が必要です', 'error');
+        return;
+    }
+
+    const config = {
+        dashboard: parseInt(document.getElementById('perm-dashboard').value),
+        templates: parseInt(document.getElementById('perm-templates').value),
+        calculator: parseInt(document.getElementById('perm-calculator').value),
+        calendar: parseInt(document.getElementById('perm-calendar').value),
+        settings: parseInt(document.getElementById('perm-settings').value),
+        profile: parseInt(document.getElementById('perm-profile').value),
+        assetManagement: parseInt(document.getElementById('perm-assetManagement').value)
+    };
+
+    localStorage.setItem('lsco_permission_config', JSON.stringify(config));
+    showNotification('権限設定を保存しました', 'success');
+
+    // UIを更新
+    updateUIForRole(currentUserRole);
+}
+
+// 権限設定をUIに読み込み
+function loadPermissionSettings() {
+    const config = getPermissionConfig();
+
+    const permDashboard = document.getElementById('perm-dashboard');
+    const permTemplates = document.getElementById('perm-templates');
+    const permCalculator = document.getElementById('perm-calculator');
+    const permCalendar = document.getElementById('perm-calendar');
+    const permSettings = document.getElementById('perm-settings');
+    const permProfile = document.getElementById('perm-profile');
+    const permAssetManagement = document.getElementById('perm-assetManagement');
+
+    if (permDashboard) permDashboard.value = config.dashboard;
+    if (permTemplates) permTemplates.value = config.templates;
+    if (permCalculator) permCalculator.value = config.calculator;
+    if (permCalendar) permCalendar.value = config.calendar;
+    if (permSettings) permSettings.value = config.settings;
+    if (permProfile) permProfile.value = config.profile;
+    if (permAssetManagement) permAssetManagement.value = config.assetManagement;
+}
+
+// グローバルに公開
+window.savePermissionSettings = savePermissionSettings;
 
 // 現在のユーザー権限を保持
 let currentUserRole = null;
@@ -301,21 +389,61 @@ function updateUIForRole(role) {
         roleDisplay.textContent = `${role.description} (${role.name})`;
     }
 
+    const config = getPermissionConfig();
+
+    // ダッシュボードメニュー
+    const dashboardMenu = document.querySelector('.nav-item[data-section="dashboard"]');
+    if (dashboardMenu) {
+        dashboardMenu.style.display = role.level >= config.dashboard ? 'block' : 'none';
+    }
+
+    // テンプレート管理メニュー
+    const templatesMenu = document.querySelector('.nav-item[data-section="templates"]');
+    if (templatesMenu) {
+        templatesMenu.style.display = role.level >= config.templates ? 'block' : 'none';
+    }
+
+    // 集計メニュー（Admin以上）
+    const calculatorMenu = document.querySelector('.nav-item[data-section="calculator"]');
+    if (calculatorMenu) {
+        calculatorMenu.style.display = role.level >= config.calculator ? 'block' : 'none';
+    }
+
+    // カレンダーメニュー（Operator以上）
+    const calendarMenu = document.querySelector('.nav-item[data-section="calendar"]');
+    if (calendarMenu) {
+        calendarMenu.style.display = role.level >= config.calendar ? 'block' : 'none';
+    }
+
+    // 設定メニュー（Admin以上）
+    const settingsMenu = document.querySelector('.nav-item[data-section="settings"]');
+    if (settingsMenu) {
+        settingsMenu.style.display = role.level >= config.settings ? 'block' : 'none';
+    }
+
+    // プロフィールメニュー
+    const profileMenu = document.querySelector('.nav-item[data-section="profile"]');
+    if (profileMenu) {
+        profileMenu.style.display = role.level >= config.profile ? 'block' : 'none';
+    }
+
+    // 資産管理メニュー（Ownerのみ）
+    const assetManagementMenu = document.getElementById('asset-management-menu');
+    if (assetManagementMenu) {
+        assetManagementMenu.style.display = role.level >= config.assetManagement ? 'block' : 'none';
+    }
+
+    // Owner限定: 権限設定メニューを表示
+    const permissionSettingsMenu = document.getElementById('permission-settings-menu');
+    if (permissionSettingsMenu) {
+        permissionSettingsMenu.style.display = role.level >= USER_ROLES.OWNER.level ? 'block' : 'none';
+    }
+
     // Admin未満の場合、設定変更を制限
     if (role.level < USER_ROLES.ADMIN.level) {
         disableSettingsForLowerRoles();
     } else {
         enableSettingsForAdminAndAbove();
-    }
-
-    // Owner限定: 資産管理メニューを表示
-    const assetManagementMenu = document.getElementById('asset-management-menu');
-    if (assetManagementMenu) {
-        if (role.level === USER_ROLES.OWNER.level) {
-            assetManagementMenu.style.display = 'block';
-        } else {
-            assetManagementMenu.style.display = 'none';
-        }
     }
 }
 
@@ -521,7 +649,8 @@ function showSection(sectionName) {
         'asset-portfolio': 'ポートフォリオ',
         'asset-watchlist': 'ウォッチリスト',
         'asset-candidates': '候補銘柄',
-        'profile': 'プロフィール'
+        'profile': 'プロフィール',
+        'permission-settings': '権限設定'
     };
 
     // 資産管理ページの初期化
@@ -540,6 +669,12 @@ function showSection(sectionName) {
             initCalculatorPage(parseInt(calcId));
         }
     }
+
+    // 権限設定ページの初期化
+    if (sectionName === 'permission-settings') {
+        loadPermissionSettings();
+    }
+
     document.getElementById('page-title').textContent = titles[sectionName] || sectionName;
 
     // モバイルでサイドバーを閉じる

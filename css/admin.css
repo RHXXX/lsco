@@ -876,6 +876,79 @@ body {
     border-color: var(--accent-primary);
 }
 
+/* 権限設定ページ */
+.section-description {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.permission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.permission-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--bg-input);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.permission-item label {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0;
+}
+
+.permission-select {
+    padding: 0.5rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    min-width: 140px;
+}
+
+.permission-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.permission-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.permission-table th,
+.permission-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.permission-table th {
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.permission-table td {
+    color: var(--text-secondary);
+}
+
+.permission-table tr:hover td {
+    background: var(--bg-card-hover);
+}
+
 /* 集計設定（シンプル版） */
 .calc-settings-simple {
     display: flex;

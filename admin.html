@@ -120,6 +120,10 @@
                             </li>
                         </ul>
                     </li>
+                    <!-- 権限設定（Owner限定） -->
+                    <li class="nav-item owner-only" data-section="permission-settings" id="permission-settings-menu" style="display: none;">
+                        <a href="#"><i class="fas fa-user-cog"></i> 権限設定</a>
+                    </li>
                 </ul>
             </nav>
             <div class="sidebar-footer">
@@ -1873,6 +1877,119 @@
                             </button>
                             <input type="file" id="import-file" accept=".json" style="display: none;">
                         </div>
+                    </div>
+                </section>
+
+                <!-- 権限設定（Owner限定） -->
+                <section id="permission-settings-section" class="content-section">
+                    <h2><i class="fas fa-user-cog"></i> 権限設定</h2>
+                    <p class="section-description">各権限レベルがアクセスできるメニューを設定します。</p>
+
+                    <div class="settings-group">
+                        <h3>メニューアクセス権限</h3>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <label>ダッシュボード</label>
+                                <select id="perm-dashboard" class="permission-select">
+                                    <option value="1">Viewer以上</option>
+                                    <option value="2">Operator以上</option>
+                                    <option value="3">Admin以上</option>
+                                    <option value="4">Ownerのみ</option>
+                                </select>
+                            </div>
+                            <div class="permission-item">
+                                <label>テンプレート管理</label>
+                                <select id="perm-templates" class="permission-select">
+                                    <option value="1">Viewer以上</option>
+                                    <option value="2">Operator以上</option>
+                                    <option value="3">Admin以上</option>
+                                    <option value="4">Ownerのみ</option>
+                                </select>
+                            </div>
+                            <div class="permission-item">
+                                <label>集計</label>
+                                <select id="perm-calculator" class="permission-select">
+                                    <option value="1">Viewer以上</option>
+                                    <option value="2">Operator以上</option>
+                                    <option value="3" selected>Admin以上</option>
+                                    <option value="4">Ownerのみ</option>
+                                </select>
+                            </div>
+                            <div class="permission-item">
+                                <label>カレンダー</label>
+                                <select id="perm-calendar" class="permission-select">
+                                    <option value="1">Viewer以上</option>
+                                    <option value="2" selected>Operator以上</option>
+                                    <option value="3">Admin以上</option>
+                                    <option value="4">Ownerのみ</option>
+                                </select>
+                            </div>
+                            <div class="permission-item">
+                                <label>設定</label>
+                                <select id="perm-settings" class="permission-select">
+                                    <option value="1">Viewer以上</option>
+                                    <option value="2">Operator以上</option>
+                                    <option value="3" selected>Admin以上</option>
+                                    <option value="4">Ownerのみ</option>
+                                </select>
+                            </div>
+                            <div class="permission-item">
+                                <label>プロフィール</label>
+                                <select id="perm-profile" class="permission-select">
+                                    <option value="1" selected>Viewer以上</option>
+                                    <option value="2">Operator以上</option>
+                                    <option value="3">Admin以上</option>
+                                    <option value="4">Ownerのみ</option>
+                                </select>
+                            </div>
+                            <div class="permission-item">
+                                <label>資産管理</label>
+                                <select id="perm-assetManagement" class="permission-select">
+                                    <option value="1">Viewer以上</option>
+                                    <option value="2">Operator以上</option>
+                                    <option value="3">Admin以上</option>
+                                    <option value="4" selected>Ownerのみ</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button id="save-permissions-btn" class="primary-btn" onclick="savePermissionSettings()">
+                            <i class="fas fa-save"></i> 権限設定を保存
+                        </button>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3>権限レベル一覧</h3>
+                        <table class="permission-table">
+                            <thead>
+                                <tr>
+                                    <th>レベル</th>
+                                    <th>名称</th>
+                                    <th>説明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Owner</td>
+                                    <td>統制管理者／所有者 - 全権限、権限設定の変更可能</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Admin</td>
+                                    <td>管理者 - 設定変更、ユーザー/権限管理</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Operator</td>
+                                    <td>運用者 - 日常運用の操作</td>
+                                </tr>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Viewer</td>
+                                    <td>閲覧者 - 閲覧のみ、変更不可</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </section>
 
