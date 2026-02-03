@@ -70,11 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ストレージの初期化
 function initializeStorage() {
-    // パスワードの初期化
-    if (!localStorage.getItem(STORAGE_KEYS.PASSWORD)) {
-        localStorage.setItem(STORAGE_KEYS.PASSWORD, DEFAULT_PASSWORD);
-    }
-
     // カテゴリーの初期化
     if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
         localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
