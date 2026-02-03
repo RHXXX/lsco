@@ -9,7 +9,7 @@ const USER_ROLES = {
     OWNER: {
         name: 'Owner',
         level: 4,
-        password: 'LSCO0wn3r2026',
+        password: 'owner2026',
         description: '統制管理者／所有者'
     },
     ADMIN: {
@@ -165,13 +165,22 @@ function checkSession() {
 // イベントリスナーの初期化
 function initializeEventListeners() {
     // ログインフォーム
-    document.getElementById('login-form').addEventListener('submit', handleLogin);
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
 
     // パスワード表示切り替え
-    document.getElementById('toggle-password').addEventListener('click', togglePasswordVisibility);
+    const togglePassword = document.getElementById('toggle-password');
+    if (togglePassword) {
+        togglePassword.addEventListener('click', togglePasswordVisibility);
+    }
 
     // ログアウト
-    document.getElementById('logout-button').addEventListener('click', handleLogout);
+    const logoutButton = document.getElementById('logout-button');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
 
     // サイドバートグル
     document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
@@ -252,7 +261,7 @@ function initializeEventListeners() {
 
 function handleLogin(e) {
     e.preventDefault();
-    const password = document.getElementById('admin-password').value;
+    const password = document.getElementById('admin-password').value.trim();
 
     // 4段階パスワードチェック
     let matchedRole = null;
@@ -449,7 +458,7 @@ function showAdminPanel() {
     document.getElementById('admin-panel').style.display = 'flex';
 
     // ダッシュボードを表示
-    showSection('dashboard');
+    showSection('dashboard-main');
 
     // データを読み込み
     loadDashboard();
@@ -483,7 +492,15 @@ function showSection(sectionName) {
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
     });
-    document.getElementById(`${sectionName}-section`).classList.add('active');
+    const targetSection = document.getElementById(`${sectionName}-section`);
+    if (targetSection) {
+        targetSection.classList.add('active');
+    } else {
+        console.warn(`セクションが見つかりません: ${sectionName}-section`);
+        // フォールバック: dashboard-main-section を表示
+        const fallback = document.getElementById('dashboard-main-section');
+        if (fallback) fallback.classList.add('active');
+    }
 
     // ページタイトルを更新
     const titles = {
