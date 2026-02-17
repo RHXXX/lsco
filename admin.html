@@ -20,6 +20,10 @@
             </div>
             <form id="login-form" class="login-form">
                 <div class="form-group">
+                    <label for="admin-email">Email</label>
+                    <input type="email" id="admin-email" placeholder="email@example.com" required>
+                </div>
+                <div class="form-group">
                     <label for="admin-password">パスワード</label>
                     <div class="password-input-wrapper">
                         <input type="password" id="admin-password" placeholder="パスワードを入力" required>
@@ -29,7 +33,7 @@
                     </div>
                 </div>
                 <div id="login-error" class="login-error" style="display: none;">
-                    パスワードが正しくありません
+                    メールアドレスまたはパスワードが正しくありません
                 </div>
                 <button type="submit" class="login-button">
                     <i class="fas fa-sign-in-alt"></i> ログイン
@@ -2003,16 +2007,18 @@
                                     <img src="images/profile.png" alt="Profile" id="profile-image">
                                 </div>
                                 <div class="profile-bio">
-                                    <p class="bio-text">ISFJ-T//FAPE//最後の恋人 //The future starts today, not tomorrow.</p>
+                                    <p class="bio-text">LSCO Founder & CEO // Investor // Strategic Thinker // "Vision without execution is just hallucination." - Thomas Edison</p>
                                 </div>
                             </div>
                             <div class="profile-interests">
                                 <span class="interests-label">Interests</span>
                                 <div class="interest-tags">
                                     <span class="interest-tag"><i class="fas fa-chart-line"></i> Trading</span>
-                                    <span class="interest-tag"><i class="fas fa-film"></i> Film Making</span>
+                                    <span class="interest-tag"><i class="fas fa-briefcase"></i> Business Strategy</span>
+                                    <span class="interest-tag"><i class="fas fa-lightbulb"></i> Innovation</span>
+                                    <span class="interest-tag"><i class="fas fa-globe"></i> Global Markets</span>
+                                    <span class="interest-tag"><i class="fas fa-code"></i> Technology</span>
                                     <span class="interest-tag"><i class="fas fa-plane"></i> Traveling</span>
-                                    <span class="interest-tag"><i class="fas fa-music"></i> Music</span>
                                 </div>
                             </div>
                         </div>
@@ -2025,15 +2031,28 @@
                                 <div class="profile-card">
                                     <div class="experience-item">
                                         <div class="experience-header">
-                                            <h3 class="experience-title">Investor</h3>
-                                            <span class="experience-period">2020 - now</span>
+                                            <h3 class="experience-title"><i class="fas fa-crown" style="color: #f4b400; margin-right: 6px;"></i>Founder & CEO</h3>
+                                            <span class="experience-period">2023 - Present</span>
                                         </div>
-                                        <p class="experience-subtitle">Private Investor</p>
+                                        <p class="experience-subtitle">LSCO - Leading Strategic Capital Operations</p>
                                         <ul class="experience-list">
-                                            <li>個人資産運用・投資戦略の立案</li>
-                                            <li>国内外の株式・仮想通貨市場での取引</li>
+                                            <li>会社の経営戦略・事業方針の策定</li>
+                                            <li>投資戦略の立案と組織マネジメント</li>
+                                            <li>事業開発・パートナーシップの構築</li>
+                                            <li>テクノロジーを活用した業務効率化の推進</li>
+                                        </ul>
+                                    </div>
+                                    <div class="experience-item" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                        <div class="experience-header">
+                                            <h3 class="experience-title"><i class="fas fa-chart-line" style="color: #4caf50; margin-right: 6px;"></i>Investor</h3>
+                                            <span class="experience-period">2020 - Present</span>
+                                        </div>
+                                        <p class="experience-subtitle">Private Investor & Trader</p>
+                                        <ul class="experience-list">
+                                            <li>個人資産運用・中長期投資戦略の立案</li>
+                                            <li>国内外の株式・暗号資産市場でのアクティブ運用</li>
                                             <li>ポートフォリオ管理・リスクマネジメント</li>
-                                            <li>市場分析・トレンド予測</li>
+                                            <li>テクニカル分析・ファンダメンタル分析</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -2041,24 +2060,27 @@
                                 <!-- 使用ツール -->
                                 <div class="profile-card">
                                     <div class="tools-section">
-                                        <span class="section-label">Trading Tools</span>
+                                        <span class="section-label"><i class="fas fa-tools" style="margin-right: 6px;"></i>Trading Tools</span>
                                         <div class="tools-icons">
-                                            <div class="tool-icon" style="background: linear-gradient(135deg, #00c853 0%, #009624 100%);">TV</div>
-                                            <div class="tool-icon" style="background: linear-gradient(135deg, #2962ff 0%, #0039cb 100%);">MT</div>
-                                            <div class="tool-icon" style="background: linear-gradient(135deg, #f57c00 0%, #e65100 100%);">BN</div>
-                                            <div class="tool-icon" style="background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);">BY</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #00c853 0%, #009624 100%);" title="TradingView">TV</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #2962ff 0%, #0039cb 100%);" title="MetaTrader">MT</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #f57c00 0%, #e65100 100%);" title="Binance">BN</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);" title="Bybit">BY</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #1a237e 0%, #0d1642 100%);" title="Bloomberg Terminal">BB</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- 分析ツール -->
+                                <!-- 分析・業務ツール -->
                                 <div class="profile-card">
                                     <div class="tools-section">
-                                        <span class="section-label">Analysis Tools</span>
+                                        <span class="section-label"><i class="fas fa-laptop-code" style="margin-right: 6px;"></i>Analysis & Business Tools</span>
                                         <div class="tools-icons">
-                                            <div class="tool-icon" style="background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);">Py</div>
-                                            <div class="tool-icon" style="background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);">Ex</div>
-                                            <div class="tool-icon" style="background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 100%);">No</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #1976d2 0%, #0d47a1 100%);" title="Python">Py</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #43a047 0%, #2e7d32 100%);" title="Excel">Ex</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 100%);" title="Notion">No</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);" title="Claude AI">AI</div>
+                                            <div class="tool-icon" style="background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);" title="Slack">Sl</div>
                                         </div>
                                     </div>
                                 </div>
@@ -2066,9 +2088,10 @@
                                 <!-- 言語 -->
                                 <div class="profile-card">
                                     <div class="tools-section">
-                                        <span class="section-label">Languages</span>
+                                        <span class="section-label"><i class="fas fa-language" style="margin-right: 6px;"></i>Languages</span>
                                         <div class="tools-icons">
-                                            <div class="tool-icon flag-icon">🇯🇵</div>
+                                            <div class="tool-icon flag-icon" title="Japanese - Native">🇯🇵</div>
+                                            <div class="tool-icon flag-icon" title="English - Business">🇺🇸</div>
                                         </div>
                                     </div>
                                 </div>
@@ -2080,11 +2103,11 @@
                                 <div class="profile-card">
                                     <div class="education-item">
                                         <div class="education-header">
-                                            <h3 class="education-title">Vocational School</h3>
+                                            <h3 class="education-title"><i class="fas fa-graduation-cap" style="color: #64b5f6; margin-right: 6px;"></i>Vocational School</h3>
                                             <span class="education-period">卒業</span>
                                         </div>
-                                        <p class="education-subtitle">専門学校</p>
-                                        <p class="education-detail">Japan</p>
+                                        <p class="education-subtitle">IT・ビジネス専門学校</p>
+                                        <p class="education-detail"><i class="fas fa-map-pin" style="margin-right: 4px;"></i>Tokyo, Japan</p>
                                     </div>
                                 </div>
 
@@ -2092,12 +2115,20 @@
                                 <div class="profile-card">
                                     <div class="status-section">
                                         <div class="status-item">
-                                            <span class="status-label">Status</span>
-                                            <span class="status-value active">Active Trader</span>
+                                            <span class="status-label"><i class="fas fa-circle" style="color: #4caf50; font-size: 8px; margin-right: 6px;"></i>Status</span>
+                                            <span class="status-value active">CEO & Active Investor</span>
                                         </div>
                                         <div class="status-item">
-                                            <span class="status-label">Focus</span>
-                                            <span class="status-value">Crypto & Stocks</span>
+                                            <span class="status-label"><i class="fas fa-crosshairs" style="margin-right: 6px;"></i>Focus</span>
+                                            <span class="status-value">Crypto, Stocks & Business Development</span>
+                                        </div>
+                                        <div class="status-item">
+                                            <span class="status-label"><i class="fas fa-building" style="margin-right: 6px;"></i>Company</span>
+                                            <span class="status-value">LSCO</span>
+                                        </div>
+                                        <div class="status-item">
+                                            <span class="status-label"><i class="fas fa-calendar-check" style="margin-right: 6px;"></i>Since</span>
+                                            <span class="status-value">2023</span>
                                         </div>
                                     </div>
                                 </div>
@@ -2106,23 +2137,32 @@
 
                         <!-- ポートフォリオリンク -->
                         <div class="profile-card portfolio-links-card">
-                            <span class="section-label">Portfolio</span>
+                            <span class="section-label"><i class="fas fa-share-alt" style="margin-right: 6px;"></i>Social & Portfolio</span>
                             <div class="portfolio-links">
                                 <a href="https://x.com/hrihorixxx" target="_blank" class="portfolio-link">
                                     <i class="fab fa-x-twitter"></i> X (Twitter)
+                                </a>
+                                <a href="https://t.me/RHX8X8X" target="_blank" class="portfolio-link">
+                                    <i class="fab fa-telegram"></i> Telegram
                                 </a>
                             </div>
                         </div>
 
                         <!-- 連絡先 -->
                         <div class="profile-card contact-card">
-                            <span class="section-label">Details</span>
+                            <span class="section-label"><i class="fas fa-address-card" style="margin-right: 6px;"></i>Details</span>
                             <div class="contact-details">
-                                <a href="https://t.me/RHX8X8X" target="_blank" class="contact-item">
-                                    <i class="fab fa-telegram"></i> Telegram
-                                </a>
                                 <span class="contact-item">
-                                    <i class="fas fa-map-marker-alt"></i> Japan
+                                    <i class="fas fa-user-tie"></i> Founder & CEO
+                                </span>
+                                <span class="contact-item">
+                                    <i class="fas fa-building"></i> LSCO
+                                </span>
+                                <span class="contact-item">
+                                    <i class="fas fa-map-marker-alt"></i> Tokyo, Japan
+                                </span>
+                                <span class="contact-item">
+                                    <i class="fas fa-clock"></i> JST (UTC+9)
                                 </span>
                             </div>
                         </div>
@@ -2401,6 +2441,8 @@
     <!-- 通知エリア -->
     <div id="notification" class="notification"></div>
 
+    <script src="js/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/admin.js"></script>
 </body>
 </html>

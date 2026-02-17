@@ -4,30 +4,26 @@
 // 初期設定
 // ============================================
 
-// 4段階パスワード権限システム
+// 4段階権限システム（認証は Supabase Auth で行う）
 const USER_ROLES = {
     OWNER: {
         name: 'Owner',
         level: 4,
-        password: 'X9k#mP2$vL8@nQ4w',
         description: '統制管理者／所有者'
     },
     ADMIN: {
         name: 'Admin',
         level: 3,
-        password: 'Rj7$tW3#bN9@kF5y',
         description: '管理者'
     },
     OPERATOR: {
         name: 'Operator',
         level: 2,
-        password: 'Hy6@pM4$cK8#wZ2x',
         description: '運用者'
     },
     VIEWER: {
         name: 'Viewer',
         level: 1,
-        password: 'Qa5#nL7$rJ3@bT9v',
         description: '閲覧者'
     }
 };
@@ -122,19 +118,79 @@ window.savePermissionSettings = savePermissionSettings;
 
 // 現在のユーザー権限を保持
 let currentUserRole = null;
+let currentUserId = null;
+let supabaseClient = null;
+
+// Supabase クライアント初期化
+function initSupabaseClient() {
+    if (supabaseClient) return supabaseClient;
+    const config = window.__SUPABASE_CONFIG;
+    if (!config || !config.url || !config.anonKey) {
+        console.error('[LSCO Auth] Supabase config missing');
+        return null;
+    }
+    if (!window.supabase || !window.supabase.createClient) {
+        console.error('[LSCO Auth] Supabase library not loaded');
+        return null;
+    }
+    supabaseClient = window.supabase.createClient(config.url, config.anonKey);
+    console.log('[LSCO Auth] Supabase client initialized');
+    return supabaseClient;
+}
+
+function requireSupabaseClient() {
+    const client = initSupabaseClient();
+    if (!client) {
+        showNotification('Supabase の初期化に失敗しました', 'error');
+    }
+    return client;
+}
+
+// role 文字列 → USER_ROLES オブジェクトに変換
+function mapRoleName(roleName) {
+    if (!roleName) return null;
+    const normalized = String(roleName).toLowerCase();
+    if (normalized === 'owner') return USER_ROLES.OWNER;
+    if (normalized === 'admin') return USER_ROLES.ADMIN;
+    if (normalized === 'operator') return USER_ROLES.OPERATOR;
+    if (normalized === 'viewer') return USER_ROLES.VIEWER;
+    return null;
+}
+
+// Supabase user_roles テーブルから role を取得
+async function fetchUserRole(userId) {
+    const client = requireSupabaseClient();
+    if (!client) return null;
+    const { data, error } = await client
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+
+    console.log('[role] uid=', userId, 'roleRow=', data, 'error=', error);
+    if (error) {
+        console.error('[LSCO Auth] role fetch error:', error);
+        return null;
+    }
+    console.log('[LSCO Auth] role fetched:', data && data.role);
+    const role = mapRoleName(data && data.role);
+    if (!role) {
+        console.error('[LSCO Auth] role value not recognized:', data && data.role);
+        return null;
+    }
+    return role;
+}
 
 // LocalStorageキー
 const STORAGE_KEYS = {
-    PASSWORD: 'lsco_admin_password',
     TEMPLATES: 'lsco_templates',
     CATEGORIES: 'lsco_categories',
-    SESSION: 'lsco_admin_session',
     CALC_SETTINGS: 'lsco_calc_settings',
-    USER_ROLE: 'lsco_user_role',
     PORTFOLIO: 'lsco_portfolio',
     WATCHLIST: 'lsco_watchlist',
     CANDIDATES: 'lsco_candidates',
-    INVESTMENT_NOTES: 'lsco_investment_notes'
+    INVESTMENT_NOTES: 'lsco_investment_notes',
+    PROFILES: 'lsco_profiles'
 };
 
 // デフォルトカテゴリー
@@ -151,9 +207,12 @@ const DEFAULT_CATEGORIES = [
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('[LSCO Init] DOMContentLoaded fired');
     initializeStorage();
+    initSupabaseClient();
     checkSession();
     initializeEventListeners();
+    console.log('[LSCO Init] All initialization complete');
 });
 
 // ストレージの初期化
@@ -233,51 +292,67 @@ LSCOサポートチームでございます。
 }
 
 // セッションチェック
-function checkSession() {
-    const session = sessionStorage.getItem(STORAGE_KEYS.SESSION);
-    if (session === 'active') {
-        // 保存された権限情報を復元
-        const savedRole = sessionStorage.getItem(STORAGE_KEYS.USER_ROLE);
-        if (savedRole) {
-            currentUserRole = JSON.parse(savedRole);
-        }
-        showAdminPanel();
-        if (currentUserRole) {
-            updateUIForRole(currentUserRole);
-        }
-    } else {
+async function checkSession() {
+    console.log('[LSCO Auth] checkSession start');
+    const client = requireSupabaseClient();
+    if (!client) {
         showLoginScreen();
+        return;
     }
+
+    const { data, error } = await client.auth.getSession();
+    if (error) {
+        console.error('[LSCO Auth] getSession error:', error);
+        showLoginScreen();
+        return;
+    }
+
+    const session = data && data.session;
+    if (!session || !session.user) {
+        console.log('[LSCO Auth] No active session, showing login screen');
+        showLoginScreen();
+        return;
+    }
+
+    currentUserId = session.user.id;
+    const role = await fetchUserRole(session.user.id);
+    if (!role) {
+        showNotification('権限が見つかりません。管理者に連絡してください。', 'error');
+        await client.auth.signOut();
+        showLoginScreen();
+        return;
+    }
+
+    currentUserRole = role;
+    showAdminPanel();
+    updateUIForRole(currentUserRole);
+    console.log('[LSCO Auth] Admin panel shown with role:', currentUserRole.name);
+}
+
+// 安全なイベントリスナー登録ヘルパー
+function safeAddListener(id, event, handler) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener(event, handler);
 }
 
 // イベントリスナーの初期化
 function initializeEventListeners() {
     // ログインフォーム
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
+    safeAddListener('login-form', 'submit', handleLogin);
 
     // パスワード表示切り替え
-    const togglePassword = document.getElementById('toggle-password');
-    if (togglePassword) {
-        togglePassword.addEventListener('click', togglePasswordVisibility);
-    }
+    safeAddListener('toggle-password', 'click', togglePasswordVisibility);
 
     // ログアウト
-    const logoutButton = document.getElementById('logout-button');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
+    safeAddListener('logout-button', 'click', handleLogout);
 
     // サイドバートグル
-    document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+    safeAddListener('sidebar-toggle', 'click', toggleSidebar);
 
     // ナビゲーション
     document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
-            // サブメニュー付きの場合はトグル
             if (this.classList.contains('has-submenu')) {
                 this.classList.toggle('open');
             } else {
@@ -297,92 +372,115 @@ function initializeEventListeners() {
         });
     });
 
-    // テンプレート追加ボタン
-    document.getElementById('add-template-btn').addEventListener('click', openAddTemplateModal);
+    // テンプレート関連
+    safeAddListener('add-template-btn', 'click', openAddTemplateModal);
+    safeAddListener('modal-close', 'click', closeModal);
+    safeAddListener('template-form', 'submit', handleTemplateSubmit);
+    safeAddListener('template-search', 'input', filterTemplates);
+    safeAddListener('category-filter', 'change', filterTemplates);
 
-    // モーダル閉じるボタン
-    document.getElementById('modal-close').addEventListener('click', closeModal);
-
-    // テンプレートフォーム
-    document.getElementById('template-form').addEventListener('submit', handleTemplateSubmit);
-
-    // テンプレート検索
-    document.getElementById('template-search').addEventListener('input', filterTemplates);
-
-    // カテゴリーフィルター
-    document.getElementById('category-filter').addEventListener('change', filterTemplates);
-
-    // パスワード変更フォーム
-    document.getElementById('change-password-form').addEventListener('submit', handlePasswordChange);
-
-    // カテゴリー追加
-    document.getElementById('add-category-btn').addEventListener('click', addCategory);
-
-    // データエクスポート
-    document.getElementById('export-data-btn').addEventListener('click', exportData);
+    // 設定関連
+    safeAddListener('change-password-form', 'submit', handlePasswordChange);
+    safeAddListener('add-category-btn', 'click', addCategory);
+    safeAddListener('export-data-btn', 'click', exportData);
 
     // データインポート
-    document.getElementById('import-data-btn').addEventListener('click', () => {
-        document.getElementById('import-file').click();
-    });
-    document.getElementById('import-file').addEventListener('change', importData);
+    const importBtn = document.getElementById('import-data-btn');
+    const importFile = document.getElementById('import-file');
+    if (importBtn && importFile) {
+        importBtn.addEventListener('click', () => importFile.click());
+        importFile.addEventListener('change', importData);
+    }
 
     // コピーボタン
-    document.getElementById('copy-title-btn').addEventListener('click', copyTemplateTitle);
-    document.getElementById('copy-content-btn').addEventListener('click', copyTemplateContent);
+    safeAddListener('copy-title-btn', 'click', copyTemplateTitle);
+    safeAddListener('copy-content-btn', 'click', copyTemplateContent);
 
     // ダッシュボードのカテゴリーフィルター
-    document.getElementById('dashboard-category-filter').addEventListener('change', filterDashboardTemplates);
+    safeAddListener('dashboard-category-filter', 'change', filterDashboardTemplates);
 
     // モーダル外クリックで閉じる
-    document.getElementById('template-modal').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
-    });
-    document.getElementById('use-template-modal').addEventListener('click', function(e) {
-        if (e.target === this) closeUseModal();
-    });
+    const templateModal = document.getElementById('template-modal');
+    if (templateModal) {
+        templateModal.addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+    }
+    const useTemplateModal = document.getElementById('use-template-modal');
+    if (useTemplateModal) {
+        useTemplateModal.addEventListener('click', function(e) { if (e.target === this) closeUseModal(); });
+    }
 }
 
 // ============================================
 // 認証機能
 // ============================================
 
-function handleLogin(e) {
+async function handleLogin(e) {
     e.preventDefault();
-    const password = document.getElementById('admin-password').value.trim();
+    console.log('[LSCO Auth] handleLogin called');
 
-    // 4段階パスワードチェック
-    let matchedRole = null;
-    for (const [key, role] of Object.entries(USER_ROLES)) {
-        if (password === role.password) {
-            matchedRole = role;
-            break;
-        }
+    const emailInput = document.getElementById('admin-email');
+    const passwordInput = document.getElementById('admin-password');
+    if (!emailInput || !passwordInput) {
+        console.error('[LSCO Auth] Login inputs not found');
+        return;
     }
 
-    if (matchedRole) {
-        currentUserRole = matchedRole;
-        sessionStorage.setItem(STORAGE_KEYS.SESSION, 'active');
-        sessionStorage.setItem(STORAGE_KEYS.USER_ROLE, JSON.stringify(matchedRole));
-        showAdminPanel();
-        updateUIForRole(matchedRole);
-        showNotification(`${matchedRole.description}としてログインしました`, 'success');
-    } else {
-        document.getElementById('login-error').style.display = 'block';
-        document.getElementById('admin-password').value = '';
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    if (!email || !password) {
+        showNotification('メールアドレスとパスワードを入力してください', 'error');
+        return;
     }
+
+    const client = requireSupabaseClient();
+    if (!client) return;
+
+    const loginError = document.getElementById('login-error');
+    if (loginError) loginError.style.display = 'none';
+
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
+    if (error || !data || !data.user) {
+        console.error('[LSCO Auth] signIn error:', error);
+        if (loginError) loginError.style.display = 'block';
+        showNotification('ログインに失敗しました。認証情報を確認してください。', 'error');
+        return;
+    }
+
+    currentUserId = data.user.id;
+    const role = await fetchUserRole(data.user.id);
+    if (!role) {
+        showNotification('権限が見つかりません。管理者に連絡してください。', 'error');
+        await client.auth.signOut();
+        showLoginScreen();
+        return;
+    }
+
+    currentUserRole = role;
+    showAdminPanel();
+    updateUIForRole(currentUserRole);
+    showNotification(`${currentUserRole.description}としてログインしました`, 'success');
+    console.log('[LSCO Auth] Login complete for:', currentUserRole.name);
 }
 
-function handleLogout() {
-    sessionStorage.removeItem(STORAGE_KEYS.SESSION);
-    sessionStorage.removeItem(STORAGE_KEYS.USER_ROLE);
+async function handleLogout() {
+    const client = requireSupabaseClient();
+    if (client) {
+        await client.auth.signOut();
+    }
     currentUserRole = null;
+    currentUserId = null;
     showLoginScreen();
     showNotification('ログアウトしました', 'info');
 }
 
 // 権限レベルに応じたUI更新
 function updateUIForRole(role) {
+    if (!role) {
+        console.error('[LSCO Role] role is null/undefined');
+        return;
+    }
+    console.log('[LSCO Role] Applying role:', role.name, 'level:', role.level);
+
     // 権限表示を更新
     const roleDisplay = document.getElementById('current-role-display');
     if (roleDisplay) {
@@ -577,6 +675,8 @@ function handlePasswordChange(e) {
 function showLoginScreen() {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('admin-panel').style.display = 'none';
+    const emailInput = document.getElementById('admin-email');
+    if (emailInput) emailInput.value = '';
     document.getElementById('admin-password').value = '';
     document.getElementById('login-error').style.display = 'none';
 }

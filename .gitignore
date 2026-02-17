@@ -1,0 +1,4 @@
+js/supabase-config.js
+.claude/settings.local.json
+*.tmp
+HANDOFF.md
