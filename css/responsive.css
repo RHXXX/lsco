@@ -1,3 +1,10 @@
+/* ヒーロー動画: iPad / PC（820px以上）は底部を基準に表示 */
+@media screen and (min-width: 820px) {
+    .hero-video {
+        object-position: center bottom;
+    }
+}
+
 /* タブレット対応 (768px - 1024px) */
 @media screen and (max-width: 1024px) {
     .container {
