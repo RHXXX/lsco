@@ -106,7 +106,7 @@ body {
 
 /* ヒーローセクション */
 .hero {
-    background: url('../images/hero-bg.png') center 30% / cover no-repeat;
+    background: #0a0e1a;
     color: white;
     padding: 80px 0 60px;
     text-align: center;
@@ -115,6 +115,20 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    overflow: hidden;
+}
+
+.hero-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    z-index: 0;
 }
 
 .hero::before {
